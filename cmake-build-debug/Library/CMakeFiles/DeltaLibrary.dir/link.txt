@@ -1,0 +1,2 @@
+/usr/bin/ar.exe qc libDeltaLibrary.a  CMakeFiles/DeltaLibrary.dir/library.cpp.o
+/usr/bin/ranlib.exe libDeltaLibrary.a

@@ -1,0 +1,1 @@
+/usr/bin/c++.exe -g  -Wl,--enable-auto-import CMakeFiles/GoogleTests.dir/CommonTemplatedTests.cpp.o CMakeFiles/GoogleTests.dir/MultisetTests.cpp.o CMakeFiles/GoogleTests.dir/SetTests.cpp.o  -o GoogleTests.exe -Wl,--out-implib,libGoogleTests.dll.a -Wl,--major-image-version,0,--minor-image-version,0 

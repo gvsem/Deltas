@@ -1,0 +1,151 @@
+#pragma once
+
+#include "Merge.h"
+#include <set>
+
+#include "../Delta.h"
+
+template <typename U>
+class Merge<std::multiset<U>> : public IMerge<std::multiset<U>> {
+
+public:
+    typedef std::multiset<U> T;
+    typedef typename Delta<T>::CollectionOperation CollectionOperation;
+
+    enum ConflictPolicy {
+        PreferA,
+        PreferB,
+        ConsolidateDeletions,
+        ConsolidateInsertions,
+        Skip
+    };
+
+    Delta<T>* delta(ConflictPolicy policy) {
+
+        this->calculateOperationalDifference();
+        std::vector<CollectionOperation*> r = std::vector<CollectionOperation*>();
+
+        for (auto& p : this->operationalDifference) {
+
+            long a = 0;
+            long b = 0;
+            if (p.second.first != nullptr) {
+                a = p.second.first->getBalance();
+            }
+            if (p.second.second != nullptr) {
+                b = p.second.second->getBalance();
+            }
+
+            CollectionOperation * op = this->getResultOperation(p.first, a, b, policy);
+            if (op != nullptr) {
+                r.push_back(op);
+            }
+
+        }
+
+        return new Delta<T>(r);
+    }
+
+    bool hasConflicts() override {
+        return false;
+    }
+
+    std::string print() {
+
+        this->calculateOperationalDifference();
+
+        std::string r;
+        for (auto& p : this->operationalDifference) {
+
+            long a = 0;
+            long b = 0;
+            if (p.second.first != nullptr) {
+                a = p.second.first->getBalance();
+            }
+            if (p.second.second != nullptr) {
+                b = p.second.second->getBalance();
+            }
+
+            if (a == b) {
+                r += "MATCH: " + p.second.first->print() + "\n";
+            } else if (a == 0) {
+                r += "CONFLICT" + p.second.first->print() + " VS. " + p.second.second->print() + "\n";
+            }
+        }
+
+        return r;
+
+    }
+
+
+protected:
+
+    Merge(Delta<T>& a, Delta<T>& b) {
+        this->operationsA = a.getOperations();
+        this->operationsB = b.getOperations();
+        this->operationalDifference = std::map<U, std::pair<CollectionOperation*, CollectionOperation*>>();
+    }
+
+    void calculateOperationalDifference() {
+
+        if (this->operationalDifference.size() != 0) {
+            return;
+        }
+
+        for (CollectionOperation* op : this->operationsA) {
+            this->operationalDifference[op->getValue()].first = op;
+        }
+
+        for (CollectionOperation* op : this->operationsB) {
+            this->operationalDifference[op->getValue()].second = op;
+        }
+
+    }
+
+    long getResultBalance(long a, long b, ConflictPolicy policy) {
+        if (a == b) {
+            return a;
+        }
+        if (a == 0) {
+            return b;
+        }
+        if (b == 0) {
+            return a;
+        }
+        switch (policy) {
+            case ConflictPolicy::PreferA :
+                return a;
+                break;
+            case ConflictPolicy::PreferB :
+                return b;
+                break;
+            case ConflictPolicy::ConsolidateInsertions :
+                return std::max(a, b);
+                break;
+            case ConflictPolicy::ConsolidateDeletions :
+                return std::min(a, b);
+                break;
+            default:
+                return 0;
+        }
+    }
+
+    CollectionOperation* getResultOperation(U u, long a, long b, ConflictPolicy policy) {
+        long r = this->getResultBalance(a, b, policy);
+        if (r > 0) {
+            return new InsertSetOperation<U>(u, (unsigned long) r);
+        } else if (r < 0) {
+            return new DeleteSetOperation<U>(u, (unsigned long)(-r));
+        } else {
+            return nullptr;
+        }
+    }
+
+
+    std::vector<CollectionOperation*> operationsA;
+    std::vector<CollectionOperation*> operationsB;
+    std::map<U, std::pair<CollectionOperation*, CollectionOperation*>> operationalDifference;
+
+    friend class Delta<T>;
+
+};

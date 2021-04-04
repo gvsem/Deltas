@@ -1,0 +1,1 @@
+/usr/bin/c++.exe -g  -Wl,--enable-auto-import CMakeFiles/helloworld.dir/CommonTemplatedTests.cpp.o CMakeFiles/helloworld.dir/MultisetTests.cpp.o CMakeFiles/helloworld.dir/SetTests.cpp.o  -o helloworld.exe -Wl,--out-implib,libhelloworld.dll.a -Wl,--major-image-version,0,--minor-image-version,0 

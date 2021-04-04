@@ -1,0 +1,1 @@
+/usr/bin/c++.exe -g  -Wl,--enable-auto-import CMakeFiles/SampleExe.dir/main.cpp.o  -o SampleExe.exe -Wl,--out-implib,libSampleExe.dll.a -Wl,--major-image-version,0,--minor-image-version,0 ../Library/libDeltaLibrary.a 
