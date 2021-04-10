@@ -135,27 +135,9 @@ int main(int argv, char** args) {
 
     //threeSetsDemo();
 
-    typedef std::vector<char> T;
-    std::string str1 = "Good morning, everyone! My name is Ivan.";
-    std::string str2 = "Good evening, every! My surname is Ivanov!";
-    std::string str3 = "It is good morning today, everyone! My name is, however, Ivan.";
-    std::string str4 = "It is good evening today, every! My surname is, however, Ivanov!";
+   //threeWayMerge<std::>();
 
-    //G         ood morevening,          everyone   ! My surname is           Ivanov.
-    //M         MMMMDDDIIIMMMMM         MMMMMMDDD   MMMMMIIIMMMMMMM M         MMMMIIM
-    // GIt is g ood m   orning today,    everyone   ! My    name is, however, Ivan  .
-    // DIIIIIII MMMM M   MMMMMMIIIIIIM   MMMMMMMMM   MMMMM   MMMMMMMIMIIIIIIIIIMMMM  M
-    T a(str1.begin(), str1.end());
-    T b(str2.begin(), str2.end());
-    T c(str3.begin(), str3.end());
-
-    Delta<T>* deltaAB = new Delta<T>(a, b);
-    Delta<T>* deltaAC = new Delta<T>(a, c);
-    std::cout << deltaAB->print() << "\n";
-    std::cout << deltaAC->print() << "\n";
-
-    Merge<T>* mergeABC = deltaAB->merge(*deltaAC);
-    Delta<T>* deltaAD = mergeABC->delta();
+    //std::cout << deltaAC->print() << "\n";
 
 
 	//demoSets();

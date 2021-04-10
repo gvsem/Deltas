@@ -106,8 +106,21 @@
 
             typename std::stringstream ss;
             for (auto op : ops) {
-                ss << op->print() << "\n";
+                if (op->type() == CollectionOperation::Match) {
+                    for (int i = 0; i < dynamic_cast<MatchSequenceOperation<U>*>(op)->getQuantity(); i++) {
+                        ss << "M";
+                    }
+                }
+                if (op->type() == CollectionOperation::Insert) {
+                    ss << "I";
+                }
+                if (op->type() == CollectionOperation::Delete) {
+                    ss << "D";
+                }
+
+                //ss << op->print() << "\n";
             }
+            ss << "\n";
             return ss.str();
 
         }

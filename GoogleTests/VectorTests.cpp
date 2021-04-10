@@ -4,6 +4,14 @@
 
 #include <set>
 
+template<class T>
+void print(T&& s) {
+    for (auto v : s) {
+        std::cout << v;
+    }
+    std::cout << "\n";
+}
+
 
 TEST(VectorDelta, StableToObjectModification) {
 
@@ -43,44 +51,77 @@ TEST(VectorDelta, DeltaReversePatching) {
 }
 
 //
-TEST(VectorDelta, ThreeWayMerge) {
+TEST(VectorDelta, ThreeWayMerge1) {
+
 
     typedef std::vector<char> T;
     std::string str1 = "Good morning, everyone! My name is Ivan.";
-    std::string str2 = "Good evening, every! My surname is Ivanov!";
+    std::string str2 = "Good eveening, every! My surname is Ivanov!";
     std::string str3 = "It is good morning today, everyone! My name is, however, Ivan.";
-    std::string str4 = "It is good evening today, every! My surname is, however, Ivanov!";
+    std::string str4_PreferA = "It is good eveening today, every! My surname is, however, Ivanov!";
+    std::string str4_PreferB = "It is good eveening today, every! My surname is, however, Ivanov!";
 
-    //G         ood morevening,          everyone   ! My surname is           Ivanov.
-    //M         MMMMDDDIIIMMMMM         MMMMMMDDD   MMMMMIIIMMMMMMM M         MMMMIIM
-    // GIt is g ood m   orning today,    everyone   ! My    name is, however, Ivan  .
-    // DIIIIIII MMMM M   MMMMMMIIIIIIM   MMMMMMMMM   MMMMM   MMMMMMMIMIIIIIIIIIMMMM  M
-    
+    //M       MMMMDDDIIIIMMMM      MMMMMMMDDDMMMMMIIIMMMMMMM M         MMMMDIII
+    //DIIIIIIIMMMMMMM    MMMMIIIIIIMMMMMMMMMMMMMMM   MMMMMMMIMIIIIIIIIIMMMMM
+    //DIIIIIIIMMMMDDDIIIIMMMMIIIIIIMMMMMMMDDDMMMMMIIIMMMMMMMIMIIIIIIIIIMMMMDIII
+
     T a(str1.begin(), str1.end());
     T b(str2.begin(), str2.end());
     T c(str3.begin(), str3.end());
+    T d_PreferA(str4_PreferA.begin(), str4_PreferA.end());
+    T d_PreferB(str4_PreferB.begin(), str4_PreferB.end());
 
     Delta<T>* deltaAB = new Delta<T>(a, b);
     Delta<T>* deltaAC = new Delta<T>(a, c);
-    std::cout << deltaAB->print() << "\n";
-    std::cout << deltaAC->print() << "\n";
-
+    //std::cout << deltaAB->print() << "\n";
+    //std::cout << deltaAC->print() << "\n";
     Merge<T>* mergeABC = deltaAB->merge(*deltaAC);
-    Delta<T>* deltaAD = mergeABC->delta();
-    
-//    T d_correct_PreferA = {0, 2, 3, 5, 5, 6, 7};
-//    T d_correct_PreferB = {0, 2, 2, 3, 5, 5, 6, 7};
-//    T d_correct_Insert = {0, 2, 2, 3, 5, 5, 6, 7};
-//    T d_correct_Delete = {0, 2, 3, 5, 5, 6, 7};
+    //Delta<T>* deltaAD = mergeABC->delta();
 
-//    Delta<T>* deltaAD_PreferA = mergeABC->delta(Merge<T>::ConflictPolicy::PreferA);
-//    Delta<T>* deltaAD_PreferB = mergeABC->delta(Merge<T>::ConflictPolicy::PreferB);
-//    Delta<T>* deltaAD_Insert = mergeABC->delta(Merge<T>::ConflictPolicy::ConsolidateInsertions);
-//    Delta<T>* deltaAD_Delete = mergeABC->delta(Merge<T>::ConflictPolicy::ConsolidateDeletions);
-//
-//    ASSERT_EQ(deltaAD_PreferA->patch(a), d_correct_PreferA);
-//    ASSERT_EQ(deltaAD_PreferB->patch(a), d_correct_PreferB);
-//    ASSERT_EQ(deltaAD_Insert->patch(a), d_correct_Insert);
-//    ASSERT_EQ(deltaAD_Delete->patch(a), d_correct_Delete);
+    Delta<T>* deltaAD_PreferA = mergeABC->delta(Merge<T>::ConflictPolicy::PreferA);
+    Delta<T>* deltaAD_PreferB = mergeABC->delta(Merge<T>::ConflictPolicy::PreferB);
+    //std::cout << deltaAD->print() << "\n";
+
+    ASSERT_EQ(deltaAD_PreferA->patch(a), d_PreferA);
+    ASSERT_EQ(deltaAD_PreferB->patch(a), d_PreferB);
+
+}
+
+
+TEST(VectorDelta, ThreeWayMerge2_Conflict) {
+
+
+    typedef std::vector<char> T;
+    std::string str1 = "Good morning, everyone! My name is Ivan. Bye!";
+    std::string str2 = "Good eveening, every! My surname is Ivanov! Stay calm! Bye!";
+    std::string str3 = "It is good morning today, everyone! My name is, however, Ivan. Stay soft! Bye!";
+    std::string str4_PreferA = "It is good eveening today, every! My surname is, however, Ivanov! Stay calm! Stay soft! Bye!";
+    std::string str4_PreferB = "It is good eveening today, every! My surname is, however, Ivanov! Stay soft! Stay calm! Bye!";
+
+    //M       MMMMDDDIIIIMMMM      MMMMMMMDDDMMMMMIIIMMMMMMM M         MMMMDIII
+    //DIIIIIIIMMMMMMM    MMMMIIIIIIMMMMMMMMMMMMMMM   MMMMMMMIMIIIIIIIIIMMMMM
+    //DIIIIIIIMMMMDDDIIIIMMMMIIIIIIMMMMMMMDDDMMMMMIIIMMMMMMMIMIIIIIIIIIMMMMDIII
+
+    T a(str1.begin(), str1.end());
+    T b(str2.begin(), str2.end());
+    T c(str3.begin(), str3.end());
+    T d_PreferA(str4_PreferA.begin(), str4_PreferA.end());
+    T d_PreferB(str4_PreferB.begin(), str4_PreferB.end());
+
+    Delta<T>* deltaAB = new Delta<T>(a, b);
+    Delta<T>* deltaAC = new Delta<T>(a, c);
+    //std::cout << deltaAB->print() << "\n";
+    //std::cout << deltaAC->print() << "\n";
+    Merge<T>* mergeABC = deltaAB->merge(*deltaAC);
+    //Delta<T>* deltaAD = mergeABC->delta();
+
+    Delta<T>* deltaAD_PreferA = mergeABC->delta(Merge<T>::ConflictPolicy::PreferA);
+    Delta<T>* deltaAD_PreferB = mergeABC->delta(Merge<T>::ConflictPolicy::PreferB);
+    //std::cout << deltaAD->print() << "\n";
+
+    print<T>(deltaAD_PreferA->patch(a));
+    print<T>(deltaAD_PreferB->patch(a));
+    ASSERT_EQ(deltaAD_PreferA->patch(a), d_PreferA);
+    ASSERT_EQ(deltaAD_PreferB->patch(a), d_PreferB);
 
 }

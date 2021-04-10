@@ -2,53 +2,62 @@
 
 #include "Merge.h"
 #include <set>
-#include <Operations/SequenceOperation/MatchSequenceOperation.h>
-//#include <Operations/SequenceOperation/SequenceOperation.h>
+#include <Operations/SequenceOperation/SequenceOperation.h>
+#include <iostream>
 
 #include "../Delta.h"
 
 template <class T>
-class PrescriptionIterator;
+class PrescriptionForwardIterator;
 
 template <class U>
-class PrescriptionIterator<std::vector<U>> {
+class PrescriptionForwardIterator<std::vector<U>> {
 public:
 
     typedef std::vector<U> T;
     typedef typename Delta<T>::CollectionOperation CollectionOperation;
 
-    PrescriptionIterator(std::vector<CollectionOperation*>& _operations) : operations(_operations) {
+    PrescriptionForwardIterator(std::vector<CollectionOperation*>& _operations) : operations(_operations) {
         this->i = operations.begin();
     }
 
     typename CollectionOperation::OperationType type() {
-        return (*i)->type();
+        if (!end()){
+            return (*i)->type();
+        }
+        return CollectionOperation::OperationType::Empty;
     }
 
     bool end() {
         return i == operations.end();
     }
 
-    T& get() {
-        return *i;
+    CollectionOperation* get() {
+        return (*i)->clone();
     }
 
     void next(int k = 1) {
-        count += k;
+
+        if (end()) {
+            return;
+        }
+
         if (this->type() == CollectionOperation::OperationType::Match) {
-            MatchSequenceOperation<T>* op = dynamic_cast<MatchSequenceOperation<T>*>(*i);
-            if (op->getQuantity() >= count) {
+            count += k;
+            int m = dynamic_cast<MatchSequenceOperation<U>*>(*i)->getQuantity();
+            if (count >= m) {
                 i++;
                 count = 0;
             }
         } else {
             i++;
+            count = 0;
         }
 
     }
 
     int getQuantity() {
-        return dynamic_cast<MatchSequenceOperation<T>*>(*i)->getQuantity();
+        return dynamic_cast<MatchSequenceOperation<U>*>(*i)->getQuantity() - count;
     }
 
 protected:
@@ -67,8 +76,16 @@ public:
     typedef std::vector<U> T;
     typedef typename Delta<T>::CollectionOperation CollectionOperation;
 
+    enum ConflictPolicy {
+        PreferA,
+        PreferB
+    };
 
     Delta<T>* delta() override {
+        return delta(ConflictPolicy::PreferA);
+    }
+
+    Delta<T>* delta(ConflictPolicy policy) {
 
         std::vector<CollectionOperation*> r = std::vector<CollectionOperation*>();
 //        typename std::vector<CollectionOperation*>::iterator i = this->operationsA.begin();
@@ -85,23 +102,162 @@ public:
         // GIt is g ood m   orning today,    everyone   ! My    name is, however, Ivan  .
         // DIIIIIII MMMM M   MMMMMMIIIIIIM   MMMMMMMMM   MMMMM   MMMMMMMIMIIIIIIIIIMMMM  M
 
-        PrescriptionIterator<T>* i = new PrescriptionIterator<T>(this->operationsA);
-        PrescriptionIterator<T>* j = new PrescriptionIterator<T>(this->operationsB);
+        auto i = new PrescriptionForwardIterator<T>(this->operationsA);
+        auto j = new PrescriptionForwardIterator<T>(this->operationsB);
+        std::cout << "\n";
+        while(!(i->end())) {
+            if (i->type() == CollectionOperation::OperationType::Match) {
+                std::cout << "M";
+            }
+            if (i->type() == CollectionOperation::OperationType::Insert) {
+                std::cout << "I";
+            }
+            if (i->type() == CollectionOperation::OperationType::Delete) {
+                std::cout << "D";
+            }
+            i->next();
+        }
 
-        while (!(i->end()) || !(j->end())) {
+        std::cout << "\n";
 
-            while((i->type() == CollectionOperation::OperationType::Match) && (i->type() == j->type())) {
-                int m = std::min(i->getQuantity(), j->getQuantity());
-                r.push_back(new MatchSequenceOperation<T>(m));
-                i->next(m);
-                j->next(m);
+        while(!(j->end())) {
+            if (j->type() == CollectionOperation::OperationType::Match) {
+                std::cout << "M";
+            }
+            if (j->type() == CollectionOperation::OperationType::Insert) {
+                std::cout << "I";
+            }
+            if (j->type() == CollectionOperation::OperationType::Delete) {
+                std::cout << "D";
+            }
+            j->next();
+        }
+        std::cout << "\n";
+        //return new Delta<T>(r);
+
+        i = new PrescriptionForwardIterator<T>(this->operationsA);
+        j = new PrescriptionForwardIterator<T>(this->operationsB);
+
+        //M       MMMMDDDIIIIMMMM      MMMMMMMDDDMMMMMIIIMMMMMMM M         MMMMDIII
+        //DIIIIIIIMMMMMMM    MMMMIIIIIIMMMMMMMMMMMMMMM   MMMMMMMIMIIIIIIIIIMMMMM
+        //DIIIIIIIMMMMDDDIIIIMMMMIIIIIIMMMMMMMDDDMMMMMIIIMMMMMMMIMIIIIIIIIIMMMMDIII
+
+        while (!(i->end()) && !(j->end())) {
+
+            typename CollectionOperation::OperationType typeA = i->type();
+            typename CollectionOperation::OperationType typeB = j->type();
+
+            if (r.size() != 0) {
+                if (r[r.size() - 1]->type() == CollectionOperation::OperationType::Match) {
+                    for (int counter = 0; counter < dynamic_cast<MatchSequenceOperation<U>*>(r[r.size() - 1])->getQuantity(); counter++) {
+                        std::cout << "M";
+                    }
+                }
+                if (r[r.size() - 1]->type() == CollectionOperation::OperationType::Insert) {
+                    std::cout << "I";
+                }
+                if (r[r.size() - 1]->type() == CollectionOperation::OperationType::Delete) {
+                    std::cout << "D";
+                }
+                std::cout.flush();
             }
 
-            // TODO: continue
 
+            if ((typeA == CollectionOperation::OperationType::Match) && (typeA == typeB)) {
+                int m = std::min(i->getQuantity(), j->getQuantity());
+                r.push_back(new MatchSequenceOperation<U>(m));
+                i->next(m);
+                j->next(m);
+                continue;
+            }
+
+            if ((typeA == CollectionOperation::OperationType::Delete) && (typeA == typeB)) {
+                r.push_back(i->get());
+                i->next();
+                j->next();
+                continue;
+            }
+
+            if ((typeA == CollectionOperation::OperationType::Insert) && (typeA == typeB)) {
+                InsertSequenceOperation<U>* opA = dynamic_cast<InsertSequenceOperation<U>*>(i->get());
+                InsertSequenceOperation<U>* opB = dynamic_cast<InsertSequenceOperation<U>*>(j->get());
+//                if (opA->getValue() == opB->getValue()) {
+//                    r.push_back(opA);
+//                    i->next();
+//                    j->next();
+//                } else {
+                    if (policy == ConflictPolicy::PreferA) {
+                        r.push_back(opA);
+                        i->next();
+                    }
+                    if (policy == ConflictPolicy::PreferB) {
+                        r.push_back(opB);
+                        j->next();
+                    }
+//                }
+
+                continue;
+            }
+
+            if (typeA == CollectionOperation::OperationType::Match) {
+                if (j->type() == CollectionOperation::Insert) {
+                    r.push_back(j->get());
+                    j->next();
+                }
+                if (j->type() == CollectionOperation::Delete){
+                    r.push_back(j->get());
+                    i->next();
+                    j->next();
+                }
+                if (j->type() == CollectionOperation::Empty){
+                    r.push_back(i->get());
+                    i->next();
+                    j->next();
+                }
+                continue;
+            }
+
+            if (typeB == CollectionOperation::OperationType::Match) {
+                if (i->type() == CollectionOperation::Insert) {
+                    r.push_back(i->get());
+                    i->next();
+                }
+                if (i->type() == CollectionOperation::Delete){
+                    r.push_back(i->get());
+                    i->next();
+                    j->next();
+                }
+                if (j->type() == CollectionOperation::Empty){
+                    r.push_back(i->get());
+                    i->next();
+                    j->next();
+                }
+                continue;
+            }
+
+            if ((typeA == CollectionOperation::OperationType::Delete) && (typeB == CollectionOperation::OperationType::Insert)) {
+                r.push_back(j->get());
+                j->next();
+                continue;
+            }
+
+            if ((typeA == CollectionOperation::OperationType::Insert) && (typeB == CollectionOperation::OperationType::Delete)) {
+                r.push_back(i->get());
+                i->next();
+                continue;
+            }
 
         }
 
+        while (!(i->end())) {
+            r.push_back(i->get());
+            i->next();
+        }
+
+        while (!(j->end())) {
+            r.push_back(j->get());
+            j->next();
+        }
 
 
         return new Delta<T>(r);
