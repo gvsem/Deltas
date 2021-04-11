@@ -12,8 +12,6 @@ public:
     typedef std::set<U> T;
     typedef typename Delta<T>::CollectionOperation CollectionOperation;
 
-
-
     Delta<T>* delta() override {
 
         this->calculateOperationalDifference();
@@ -76,14 +74,14 @@ public:
 
     }
 
-
-protected:
-
     Merge(Delta<T>& a, Delta<T>& b) {
         this->operationsA = a.getOperations();
         this->operationsB = b.getOperations();
         this->operationalDifference = std::map<U, std::pair<CollectionOperation*, CollectionOperation*>>();
     }
+
+protected:
+
 
     void calculateOperationalDifference() {
         if (this->operationalDifference.size() != 0) {

@@ -57,3 +57,4 @@ private:
 #include "DeltaSet.h"
 #include "DeltaMultiset.h"
 #include "DeltaVector.h"
+#include "DeltaMap.h"

@@ -13,13 +13,13 @@ public:
 	// getProperty(name)
 
 	Contacts() {
-		this->_contactList = std::set<Contact>();
+		this->_contactList = std::map<int, Contact>();
 	}
 
 private:
-	std::set<Contact> _contactList;
+    std::map<int, Contact> _contactList;
 
-	Contacts(std::set<Contact> contactList): _contactList(contactList) {
+	Contacts(std::map<int, Contact> contactList): _contactList(contactList) {
 
 	}
 
@@ -27,7 +27,7 @@ private:
 };
 
 template <>
-class Delta<Contacts>: protected Delta<std::vector<Contact *>> {
+class Delta<Contacts>: protected Delta<std::vector<Contact>> {
 
 	typedef Contacts T;
 

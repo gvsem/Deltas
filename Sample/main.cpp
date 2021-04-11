@@ -6,6 +6,7 @@
 #include <vector>
 #include <set>
 #include <Algorithms/WFPrescription.h>
+#include "Contact.h"
 
 //using namespace CPPDelta;
 
@@ -92,26 +93,7 @@ void demoVectors() {
 }
 
 
-template <class T>
-T threeWayMerge(T a, T b, T c) {
 
-    Delta<T>* d1 = new Delta<T>(a, b);
-    Delta<T>* d2 = new Delta<T>(a, c);
-    //std::cout << d1->print();
-    //std::cout << d2->print();
-    Merge<T>* m = d1->merge(*d2);
-    Delta<T>* d3 = m->delta();
-    //std::cout << m->print();
-    T result = d3->patch(a);
-
-    //print<T>(a);
-    //print<T>(b);
-    //print<T>(c);
-    //print<T>(result);
-
-    return result;
-
-}
 
 void threeSetsDemo() {
 
@@ -147,14 +129,33 @@ void print(T d) {
     std::cout << "\n";
 }
 
-int main(int argv, char** args) {
+void threeWayMergeMap() {
 
-    //threeSetsDemo();
+    typedef std::map<int, std::string> T;
+    T a;
+    a[1] = "a";
+    a[2] = "b";
+    a[3] = "c";
 
-   //threeWayMerge<std::>();
+    T b;
+    b[2] = "m";
+    b[3] = "c";
+    b[4] = "d";
 
-    //std::cout << deltaAC->print() << "\n";
+    T c;
+    c[1] = "m";
+    c[2] = "c";
+    c[3] = "d";
+    c[4] = "e";
 
+    T d = threeWayMerge<T>(a, b, c);
+    for (auto v: d) {
+        std::cout << v.first << " : " << v.second << "\n";
+    }
+
+}
+
+void threeWayMergeText() {
     typedef std::vector<std::vector<char>> T;
 
     T a = {
@@ -184,6 +185,52 @@ int main(int argv, char** args) {
     std::cout << "\n";
 
     print<T>(d);
+
+}
+
+int main(int argv, char** args) {
+
+    //threeSetsDemo();
+
+   //threeWayMerge<std::>();
+
+    //std::cout << deltaAC->print() << "\n";
+
+    typedef Contact T;
+
+    Contact a = Contact();
+    a.addName("Ivan");
+    a.addName("Petrov");
+    a.addPhone("+78882220920");
+    a.addPhone("+76662220920");
+    a.addPhone("+79992220920");
+
+    Contact b = Contact();
+    b.addName("Ivan");
+    b.addName("Sergeevich");
+    b.addName("Petrov");
+    b.addPhone("+78882220920");
+    b.addPhone("+79992220940");
+
+    Contact c = Contact();
+    c.addName("Ivan");
+    c.addName("Petrov-Vodkin");
+    c.addPhone("+78882220920");
+    c.addPhone("+76662220920");
+    c.addPhone("+79992220920");
+    c.addPhone("+77772220920");
+
+    Delta<T>* d1 = new Delta<T>(a, b);
+    Delta<T>* d2 = new Delta<T>(a, c);
+    //std::cout << d1->print();
+    //std::cout << d2->print();
+    Merge<T>* m = new Merge<T>(*d1, *d2);
+    Delta<T>* d3 = m->delta();
+    //std::cout << m->print();
+    T result = d3->patch(a);
+
+    //Contact ABC = threeWayMerge<Contact>(a, b, c);
+
 
 
 //    Delta<T>* deltaAB = new Delta<T>(a, b, new WFPrescription<T, std::vector<char>>(a,b));

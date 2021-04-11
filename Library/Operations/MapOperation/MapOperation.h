@@ -5,34 +5,35 @@
 
 #include "../IOperation.h"
 
-template <class T>
-class MapOperation: public IOperation<T> {
+template <class K, class V>
+class MapOperation: public IOperation<V> {
 
 public:
 
     enum OperationType {
         Empty,
-        InsertModify,
+        Insert,
         Delete,
         Delta
     };
 
-    virtual MapOperation<T>::OperationType type() {
-        return MapOperation<T>::OperationType::Empty;
+    virtual MapOperation<K, V>::OperationType type() {
+        return MapOperation<K, V>::OperationType::Empty;
     }
 
-    virtual MapOperation<T>* clone() = 0;
+    virtual MapOperation<K, V>* clone() = 0;
+
+    virtual K getKey() = 0;
 
 protected:
 
-    SequenceOperation() = default;
-    SequenceOperation(SequenceOperation<T> const & ) = default;
-    SequenceOperation& operator=(SequenceOperation<T> const & ) = default;
+    MapOperation() = default;
+    MapOperation(MapOperation<K, V> const & ) = default;
+    MapOperation& operator=(MapOperation<K, V> const & ) = default;
 
 };
 
-#include "InsertSequenceOperation.h"
-#include "DeleteSequenceOperation.h"
-#include "MatchSequenceOperation.h"
-#include "DeltaSequenceOperation.h"
+#include "InsertMapOperation.h"
+#include "DeleteMapOperation.h"
+#include "DeltaMapOperation.h"
 

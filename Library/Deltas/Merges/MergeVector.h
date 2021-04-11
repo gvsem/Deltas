@@ -202,7 +202,16 @@ public:
                 Merge<U>* m = new Merge<U>(opA->getDelta(), opB->getDelta());
                 if (m->hasSpecialization()) {
                     r.push_back(new DeltaSequenceOperation<U>(m->delta()));
+                } else {
+                    if (policy == ConflictPolicy::PreferA) {
+                        r.push_back(opA);
+                    }
+                    if (policy == ConflictPolicy::PreferB) {
+                        r.push_back(opB);
+                    }
                 }
+
+
 //                } else {
 //                    std::vector<CollectionOperation*> r = std::vector<CollectionOperation*>();
 //                    Delta<U>

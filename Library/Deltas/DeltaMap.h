@@ -5,36 +5,44 @@
 #include <vector>
 #include <set>
 #include <map>
-#include "../Operations/SetOperation/SetOperation.h"
+#include "../Operations/MapOperation/MapOperation.h"
 
-#include "Merges/MergeSet.h"
+#include "Merges/MergeMap.h"
 
-template <typename U, typename V>
-class Delta<std::map<U, V>> : public IDelta<std::map<U, V>> {
+template <typename K, typename V>
+class Delta<std::map<K, V>> : public IDelta<std::map<K, V>> {
 
 public:
 
-    typedef std::map<U, V> T;
-    typedef SetOperation<U> CollectionOperation;
+    typedef std::map<K, V> T;
+    typedef MapOperation<K, V> CollectionOperation;
 
     Delta(T& initialState, T& finalState) : IDelta<T>(initialState, finalState) {
 
         this->ops = std::vector<CollectionOperation*>();
 
-        this->counts = std::map<U, int>();
-        for (typename T::iterator i = initialState.begin(); i != initialState.end(); i++) {
-            this->counts[*i]++;
-        }
-        for (typename T::iterator i = finalState.begin(); i != finalState.end(); i++) {
-            this->counts[*i]--;
-        }
+        T finalStateCopy = T(finalState);
 
-        for (std::pair<U, int> p : this->counts) {
-            if (p.second > 0) {
-                this->ops.push_back(new DeleteSetOperation<U>(p.first));
+        for (typename T::iterator i = initialState.begin(); i != initialState.end(); i++) {
+            auto j = finalStateCopy.find(i->first); //std::find(finalStateCopy.begin(), finalStateCopy.end(), i->first);
+            if (j != finalStateCopy.end()) {
+                if (i->second == j->second) {
+                    // match
+                } else {
+                    // modify
+                    this->ops.push_back(new DeltaMapOperation<K, V>(i->first, new Delta<V>(i->second, j->second)));
+                }
+                finalStateCopy.erase(j);
+            } else {
+                // deleted
+                this->ops.push_back(new DeleteMapOperation<K, V>(i->first, i->second));
             }
-            else if (p.second < 0) {
-                this->ops.push_back(new InsertSetOperation<U>(p.first));
+        }
+        for (typename T::iterator i = finalStateCopy.begin(); i != finalStateCopy.end(); i++) {
+            auto j = initialState.find(i->first);
+            if (j == initialState.end()) {
+                // inserted
+                this->ops.push_back(new InsertMapOperation<K, V>(i->first, i->second));
             }
         }
 
@@ -42,13 +50,11 @@ public:
 
     Delta& operator=(const Delta& other) {
         this->ops = std::vector<CollectionOperation*>(other.ops);
-        this->counts = std::map<U, int>(other.counts);
         return *this;
     }
 
     Delta& operator=(const Delta&& other) {
         this->ops = std::move(other.ops);
-        this->counts = std::move(other.counts);
         return *this;
     }
 
@@ -58,14 +64,20 @@ public:
 
         for (CollectionOperation* op : this->ops) {
             if (op->type() == CollectionOperation::OperationType::Delete) {
-                finalState.erase(finalState.find(dynamic_cast<DeleteSetOperation<U>*>(op)->getValue()));
+                finalState.erase(dynamic_cast<DeleteMapOperation<K, V>*>(op)->getKey());
             }
             if (op->type() == CollectionOperation::OperationType::Insert) {
-                finalState.insert(dynamic_cast<InsertSetOperation<U>*>(op)->getValue());
+                auto opE = dynamic_cast<InsertMapOperation<K, V>*>(op);
+                finalState[opE->getKey()] = opE->getValue();
+            }
+            if (op->type() == CollectionOperation::OperationType::Delta) {
+                auto opE = dynamic_cast<DeltaMapOperation<K, V>*>(op);
+                finalState[opE->getKey()] = opE->getDelta().patch(finalState[opE->getKey()]);
             }
         }
 
         return finalState;
+
     }
 
     bool hasSpecialization() override {
@@ -86,18 +98,6 @@ public:
 private:
 
     Delta(std::vector<CollectionOperation*> _ops): ops(_ops) {
-        this->counts = std::map<U, int>();
-        for (CollectionOperation* op : _ops) {
-            if (op->type() == CollectionOperation::OperationType::Delete) {
-                this->counts[dynamic_cast<DeleteSetOperation<U>*>(op)->getValue()]--;
-            }
-            if (op->type() == CollectionOperation::OperationType::Insert) {
-                this->counts[dynamic_cast<InsertSetOperation<U>*>(op)->getValue()]++;
-            }
-        }
-    }
-
-    Delta(std::vector<CollectionOperation*> _ops,  std::map<U, int> _counts) : ops(_ops), counts(_counts) {
 
     }
 
@@ -109,19 +109,20 @@ public:
 
         for (CollectionOperation* op : this->ops) {
             if (op->type() == CollectionOperation::OperationType::Delete) {
-                reverseOps.push_back(new InsertSetOperation<U>(dynamic_cast<DeleteSetOperation<U>*>(op)->getValue()));
+                auto opE = dynamic_cast<DeleteMapOperation<K, V>*>(op);
+                reverseOps.push_back(new InsertMapOperation<K, V>(op->getKey(), opE->getValue()));
             }
             if (op->type() == CollectionOperation::OperationType::Insert) {
-                reverseOps.push_back(new DeleteSetOperation<U>(dynamic_cast<InsertSetOperation<U>*>(op)->getValue()));
+                auto opE = dynamic_cast<InsertMapOperation<K, V>*>(op);
+                reverseOps.push_back(new DeleteMapOperation<K, V>(op->getKey(), opE->getValue()));
+            }
+            if (op->type() == CollectionOperation::OperationType::Delta) {
+                auto opE = dynamic_cast<DeltaMapOperation<K, V>*>(op);
+                reverseOps.push_back(new DeltaMapOperation<K, V>(op->getKey(), opE->getDelta().reverse()));
             }
         }
 
-        std::map<U, int> reverseCounts(this->counts);
-        for (typename std::map<U, int>::iterator it = reverseCounts.begin(); it != reverseCounts.end(); it++) {
-            it->second = (it->second) * (-1);
-        }
-
-        return new Delta<T>(reverseOps, counts);
+        return new Delta<T>(reverseOps);
 
     }
 
@@ -142,7 +143,6 @@ public:
 
 protected:
     std::vector<CollectionOperation*> ops;
-    std::map<U, int> counts;
 
     std::vector<CollectionOperation*> getOperations() {
         std::vector<CollectionOperation*> r;

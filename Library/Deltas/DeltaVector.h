@@ -27,7 +27,7 @@
             return true;
         }
 
-        Delta(T& initialState, T& finalState) : Delta<std::vector<U>>(initialState, finalState, new WFPrescription<T, U>(initialState, finalState)) {
+        Delta(T& initialState, T& finalState) : Delta<std::vector<U>>(initialState, finalState, new EditorialPrescription<T, U>(initialState, finalState)) {
 
         }
 
