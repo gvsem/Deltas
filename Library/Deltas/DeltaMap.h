@@ -9,12 +9,12 @@
 
 #include "Merges/MergeSet.h"
 
-template <typename U>
-class Delta<std::multiset<U>> : public IDelta<std::multiset<U>> {
+template <typename U, typename V>
+class Delta<std::map<U, V>> : public IDelta<std::map<U, V>> {
 
 public:
 
-    typedef std::multiset<U> T;
+    typedef std::map<U, V> T;
     typedef SetOperation<U> CollectionOperation;
 
     Delta(T& initialState, T& finalState) : IDelta<T>(initialState, finalState) {
@@ -31,10 +31,10 @@ public:
 
         for (std::pair<U, int> p : this->counts) {
             if (p.second > 0) {
-                this->ops.push_back(new DeleteSetOperation<U>(p.first, p.second));
+                this->ops.push_back(new DeleteSetOperation<U>(p.first));
             }
             else if (p.second < 0) {
-                this->ops.push_back(new InsertSetOperation<U>(p.first, -p.second));
+                this->ops.push_back(new InsertSetOperation<U>(p.first));
             }
         }
 
@@ -56,24 +56,16 @@ public:
 
         T finalState(initialState);
 
-        for (CollectionOperation* operation : this->ops) {
-            if (operation->type() == CollectionOperation::OperationType::Delete) {
-                for (int i = 0; i < operation->getQuantity(); i++) {
-                    finalState.erase(finalState.find(operation->getValue()));
-                }
+        for (CollectionOperation* op : this->ops) {
+            if (op->type() == CollectionOperation::OperationType::Delete) {
+                finalState.erase(finalState.find(dynamic_cast<DeleteSetOperation<U>*>(op)->getValue()));
             }
-            if (operation->type() == CollectionOperation::OperationType::Insert) {
-                for (int i = 0; i < operation->getQuantity(); i++) {
-                    finalState.insert(operation->getValue());
-                }
+            if (op->type() == CollectionOperation::OperationType::Insert) {
+                finalState.insert(dynamic_cast<InsertSetOperation<U>*>(op)->getValue());
             }
         }
 
         return finalState;
-    }
-
-    Delta<T>* clone() {
-        return new Delta<T>(this->getOperations());
     }
 
     bool hasSpecialization() override {
@@ -97,12 +89,10 @@ private:
         this->counts = std::map<U, int>();
         for (CollectionOperation* op : _ops) {
             if (op->type() == CollectionOperation::OperationType::Delete) {
-                DeleteSetOperation<U>* operation = dynamic_cast<DeleteSetOperation<U>*>(op);
-                this->counts[operation->getValue()] -= operation->getQuantity();
+                this->counts[dynamic_cast<DeleteSetOperation<U>*>(op)->getValue()]--;
             }
             if (op->type() == CollectionOperation::OperationType::Insert) {
-                InsertSetOperation<U>* operation = dynamic_cast<InsertSetOperation<U>*>(op);
-                this->counts[operation->getValue()] += operation->getQuantity();
+                this->counts[dynamic_cast<InsertSetOperation<U>*>(op)->getValue()]++;
             }
         }
     }
@@ -119,12 +109,10 @@ public:
 
         for (CollectionOperation* op : this->ops) {
             if (op->type() == CollectionOperation::OperationType::Delete) {
-                DeleteSetOperation<U>* operation = dynamic_cast<DeleteSetOperation<U>*>(op);
-                reverseOps.push_back(new InsertSetOperation<U>(operation->getValue(), operation->getQuantity()));
+                reverseOps.push_back(new InsertSetOperation<U>(dynamic_cast<DeleteSetOperation<U>*>(op)->getValue()));
             }
             if (op->type() == CollectionOperation::OperationType::Insert) {
-                InsertSetOperation<U>* operation = dynamic_cast<InsertSetOperation<U>*>(op);
-                reverseOps.push_back(new DeleteSetOperation<U>(operation->getValue(), operation->getQuantity()));
+                reverseOps.push_back(new DeleteSetOperation<U>(dynamic_cast<InsertSetOperation<U>*>(op)->getValue()));
             }
         }
 
@@ -135,6 +123,11 @@ public:
 
         return new Delta<T>(reverseOps, counts);
 
+    }
+
+
+    Delta<T>* clone() {
+        return new Delta<T>(this->getOperations());
     }
 
     Merge<T>* merge(Delta<T>& other) {
@@ -148,15 +141,18 @@ public:
     }
 
 protected:
-
     std::vector<CollectionOperation*> ops;
     std::map<U, int> counts;
 
     std::vector<CollectionOperation*> getOperations() {
         std::vector<CollectionOperation*> r;
         for (CollectionOperation* op : this->ops) {
+            //auto uptr = op->clone();
             r.push_back(op->clone());
+            // TODO: seg
+            //uptr.release();
         }
+
         return r;
     }
 

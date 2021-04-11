@@ -6,23 +6,22 @@
 #include "../IOperation.h"
 
 template <class T>
-class SequenceOperation: public IOperation<T> {
+class MapOperation: public IOperation<T> {
 
 public:
 
-	enum OperationType {
-		Empty,
-		Insert,
-		Delete,
-		Delta,
-		Match
-	};
+    enum OperationType {
+        Empty,
+        InsertModify,
+        Delete,
+        Delta
+    };
 
-	virtual SequenceOperation<T>::OperationType type() {
-		return SequenceOperation<T>::OperationType::Empty;
-	}
+    virtual MapOperation<T>::OperationType type() {
+        return MapOperation<T>::OperationType::Empty;
+    }
 
-    virtual SequenceOperation<T>* clone() = 0;
+    virtual MapOperation<T>* clone() = 0;
 
 protected:
 

@@ -23,6 +23,10 @@ public:
         return _quantity;
     }
 
+    T patch(T& a) override {
+        return T();
+    }
+
     SequenceOperation<T>* clone() override {
         return new MatchSequenceOperation(*this);
     }

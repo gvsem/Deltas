@@ -9,4 +9,8 @@ public:
 		return "Empty";
 	}
 
+    virtual T patch(T& a) {
+        return T();
+    }
+
 };

@@ -30,11 +30,19 @@ public:
     }
 
     Delta<T>* reverse() {
-        return Delta<T>(this->_finalState, this->_initialState);
+        return new Delta<T>(this->_finalState, this->_initialState);
+    }
+
+    Delta<T>* clone() {
+        return new Delta<T>(_initialState, _finalState);
     }
 
     ~Delta() override {
 
+    }
+
+    bool hasSpecialization() override {
+        return false;
     }
 
 private:

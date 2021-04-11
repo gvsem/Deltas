@@ -37,6 +37,10 @@ public:
         return new DeleteSetOperation(*this);
     }
 
+    T patch(T& a) override {
+        return _value;
+    }
+
 protected:
     DeleteSetOperation(DeleteSetOperation<T> const & ) = default;
     DeleteSetOperation& operator=(DeleteSetOperation<T> const & ) = default;

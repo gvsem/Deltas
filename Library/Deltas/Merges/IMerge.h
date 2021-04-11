@@ -21,5 +21,9 @@ public:
         return "";
     }
 
+    virtual bool hasSpecialization() {
+        return false;
+    }
+
 
 };

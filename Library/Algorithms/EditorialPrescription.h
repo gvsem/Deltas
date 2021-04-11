@@ -10,22 +10,27 @@
 //class Delta;
 //#include "Delta.h"
 
+#include "VectorDifferenceAlgorithm.h"
+
 #define DEFAULT_MYERS_D 50
 #define INF 1000000000
 
 template <class T, class U>
-class EditorialPrescription {
+class EditorialPrescription: public VectorDifferenceAlgorithm<T, U> {
 
 	//typedef T::value_type U;
 
 public:
 
-	EditorialPrescription(T& initial, T& final, int d = DEFAULT_MYERS_D) : _initial(initial), _final(final), maxD(d) {
+    EditorialPrescription(T& initial, T& final) : _initial(initial), _final(final) {
+        this->maxD = DEFAULT_MYERS_D;
+    }
+
+	EditorialPrescription(T& initial, T& final, int d) : _initial(initial), _final(final), maxD(d) {
 		this->maxD = std::max(5, d);
-		this->calculate();
 	}
 
-	std::string print() {
+	std::string print() override {
 
 		typename std::stringstream ss;
 		for (auto op : ops) {
@@ -35,14 +40,24 @@ public:
 
 	}
 
-	std::vector<SequenceOperation<U>*>& getEditorialPrescription() {
+	int size() override {
+        this->calculate();
+	    return ops.size();
+	}
+
+	std::vector<SequenceOperation<U>*>& getEditorialPrescription() override {
+        this->calculate();
 		return this->ops;
 	}
 
 protected:
 
 	void calculate() {
-		
+
+	    if (ops.size() != 0){
+	        return;
+	    }
+
 		if (_initial.size() == 0) {
 			for (auto v : _final) {
 				this->ops.push_back(new InsertSequenceOperation<U>(v));
@@ -95,19 +110,21 @@ protected:
 
 		std::cout << "done";
 
-		//for (int i = 0; i < M.size(); i++) {
-		//	std::cout << i << " -> ";
-		//	for (int j = 0; j < M[i].size(); j++) {
-		//		if (M[i][j] != INF) {
-		//			std::cout << M[i][j] << " | ";
-		//		}
-		//		else {
-		//			std::cout << "--" << " | ";
-		//		}
-		//	}
-		//	std::cout << "\n";
-		//}
-		//std::cout << "\n";
+		//M->
+//		for (int i = 0; i < M.size(); i++) {
+//			std::cout << i << " -> ";
+//			for (int j = 0; j < M[i].size(); j++) {
+//				if (M[i][j] != INF) {
+//					std::cout << M[i][j] << " | ";
+//				}
+//				else {
+//					std::cout << "--" << " | ";
+//				}
+//			}
+//			std::cout << "\n";
+//		}
+//		std::cout << "\n";
+
 
 		int k = finalK;
 		for (int d = finalI; d >= 1; d--) {

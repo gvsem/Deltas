@@ -81,6 +81,10 @@ public:
         PreferB
     };
 
+    bool hasSpecialization() override {
+        return true;
+    }
+
     Delta<T>* delta() override {
         return delta(ConflictPolicy::PreferA);
     }
@@ -102,6 +106,10 @@ public:
         // GIt is g ood m   orning today,    everyone   ! My    name is, however, Ivan  .
         // DIIIIIII MMMM M   MMMMMMIIIIIIM   MMMMMMMMM   MMMMM   MMMMMMMIMIIIIIIIIIMMMM  M
 
+
+        // ddd
+        // ddd
+
         auto i = new PrescriptionForwardIterator<T>(this->operationsA);
         auto j = new PrescriptionForwardIterator<T>(this->operationsB);
         std::cout << "\n";
@@ -114,6 +122,9 @@ public:
             }
             if (i->type() == CollectionOperation::OperationType::Delete) {
                 std::cout << "D";
+            }
+            if (i->type() == CollectionOperation::OperationType::Delta) {
+                std::cout << "d";
             }
             i->next();
         }
@@ -129,6 +140,9 @@ public:
             }
             if (j->type() == CollectionOperation::OperationType::Delete) {
                 std::cout << "D";
+            }
+            if (j->type() == CollectionOperation::OperationType::Delta) {
+                std::cout << "d";
             }
             j->next();
         }
@@ -159,6 +173,9 @@ public:
                 if (r[r.size() - 1]->type() == CollectionOperation::OperationType::Delete) {
                     std::cout << "D";
                 }
+                if (r[r.size() - 1]->type() == CollectionOperation::OperationType::Delta) {
+                    std::cout << "d";
+                }
                 std::cout.flush();
             }
 
@@ -173,6 +190,25 @@ public:
 
             if ((typeA == CollectionOperation::OperationType::Delete) && (typeA == typeB)) {
                 r.push_back(i->get());
+                i->next();
+                j->next();
+                continue;
+            }
+
+            if ((typeA == CollectionOperation::OperationType::Delta) && (typeA == typeB)) {
+                DeltaSequenceOperation<U>* opA = dynamic_cast<DeltaSequenceOperation<U>*>(i->get());
+                DeltaSequenceOperation<U>* opB = dynamic_cast<DeltaSequenceOperation<U>*>(j->get());
+
+                Merge<U>* m = new Merge<U>(opA->getDelta(), opB->getDelta());
+                if (m->hasSpecialization()) {
+                    r.push_back(new DeltaSequenceOperation<U>(m->delta()));
+                }
+//                } else {
+//                    std::vector<CollectionOperation*> r = std::vector<CollectionOperation*>();
+//                    Delta<U>
+//                }
+//
+//                r.push_back(new DeltaSequenceOperation<U>(m->delta()));
                 i->next();
                 j->next();
                 continue;
@@ -214,6 +250,11 @@ public:
                     i->next();
                     j->next();
                 }
+                if (j->type() == CollectionOperation::Delta){
+                    r.push_back(j->get());
+                    i->next();
+                    j->next();
+                }
                 continue;
             }
 
@@ -227,7 +268,12 @@ public:
                     i->next();
                     j->next();
                 }
-                if (j->type() == CollectionOperation::Empty){
+                if (i->type() == CollectionOperation::Empty){
+                    r.push_back(j->get());
+                    i->next();
+                    j->next();
+                }
+                if (i->type() == CollectionOperation::Delta){
                     r.push_back(i->get());
                     i->next();
                     j->next();
@@ -235,15 +281,28 @@ public:
                 continue;
             }
 
-            if ((typeA == CollectionOperation::OperationType::Delete) && (typeB == CollectionOperation::OperationType::Insert)) {
-                r.push_back(j->get());
-                j->next();
+            if ((typeA == CollectionOperation::OperationType::Delete)) {
+                if ((typeB == CollectionOperation::OperationType::Insert)) {
+                    r.push_back(j->get());
+                    j->next();
+                }
+                if ((typeB == CollectionOperation::OperationType::Delta)) {
+                    r.push_back(j->get());
+                    j->next();
+                }
                 continue;
             }
 
-            if ((typeA == CollectionOperation::OperationType::Insert) && (typeB == CollectionOperation::OperationType::Delete)) {
-                r.push_back(i->get());
-                i->next();
+            if ((typeA == CollectionOperation::OperationType::Insert)) {
+                if ((typeB == CollectionOperation::OperationType::Delete)) {
+                    r.push_back(i->get());
+                    i->next();
+                }
+                if ((typeB == CollectionOperation::OperationType::Delta)) {
+                    r.push_back(i->get());
+                    i->next();
+                }
+
                 continue;
             }
 
@@ -274,14 +333,12 @@ public:
 
     }
 
-
-protected:
-
     Merge(Delta<T>& a, Delta<T>& b) {
         this->operationsA = a.getOperations();
         this->operationsB = b.getOperations();
     }
 
+protected:
     std::vector<CollectionOperation*> operationsA;
     std::vector<CollectionOperation*> operationsB;
 

@@ -13,6 +13,7 @@ public:
     typedef typename Delta<T>::CollectionOperation CollectionOperation;
 
 
+
     Delta<T>* delta() override {
 
         this->calculateOperationalDifference();

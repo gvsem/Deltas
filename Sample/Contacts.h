@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Delta/Delta.h"
+#include "../Library/Deltas/Delta.h"
 
 #include "Contact.h"
 #include <set>
@@ -27,7 +27,7 @@ private:
 };
 
 template <>
-class Delta<Contacts>: IDelta<Contacts> {
+class Delta<Contacts>: protected Delta<std::vector<Contact *>> {
 
 	typedef Contacts T;
 

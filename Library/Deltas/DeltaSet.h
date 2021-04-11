@@ -68,6 +68,10 @@
             return finalState;
         }
 
+        bool hasSpecialization() override {
+            return true;
+        }
+
         std::string print() override {
 
             typename std::stringstream ss;
@@ -119,6 +123,11 @@
 
             return new Delta<T>(reverseOps, counts);
 
+        }
+
+
+        Delta<T>* clone() {
+            return new Delta<T>(this->getOperations());
         }
 
         Merge<T>* merge(Delta<T>& other) {

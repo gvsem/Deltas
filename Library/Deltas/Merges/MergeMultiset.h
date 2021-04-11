@@ -20,6 +20,10 @@ public:
         Skip
     };
 
+    bool hasSpecialization() override {
+        return true;
+    }
+
     Delta<T>* delta(ConflictPolicy policy) {
 
         this->calculateOperationalDifference();

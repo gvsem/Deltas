@@ -3,7 +3,16 @@
 #include "Delta.h"
 
 #include <vector>
+#include <vector>
+#include <iostream>
+#include <string>
 #include "../Algorithms/EditorialPrescription.h"
+#include "../Algorithms/WFPrescription.h"
+
+//template <typename U>
+//class Delta<std::vector<U>,  EditorialPrescription<std::vector<U>, U>> : public IDelta<std::vector<U>> {
+//
+//};
 
 
     template <typename U>
@@ -14,23 +23,65 @@
         typedef std::vector<U> T;
         typedef SequenceOperation<U> CollectionOperation;
 
-        Delta(T& initialState, T& finalState) : IDelta<std::vector<U>>(initialState, finalState) {
+        bool hasSpecialization() override {
+            return true;
+        }
 
-            EditorialPrescription<T, U> * sdf = new EditorialPrescription<T, U>(initialState, finalState);
+        Delta(T& initialState, T& finalState) : Delta<std::vector<U>>(initialState, finalState, new WFPrescription<T, U>(initialState, finalState)) {
+
+        }
+
+        Delta(T& initialState, T& finalState, VectorDifferenceAlgorithm<T, U>* algorithm) : IDelta<std::vector<U>>(initialState, finalState) {
+            VectorDifferenceAlgorithm<T, U>* sdf = algorithm;
             std::vector<SequenceOperation<U>*> o = std::vector<SequenceOperation<U>*>(sdf->getEditorialPrescription());
 
-            this->ops = o;
+            this->ops = std::vector<SequenceOperation<U>*>();
+            std::vector<SequenceOperation<U>*> buffD = std::vector<SequenceOperation<U>*>();
+            std::vector<SequenceOperation<U>*> buffI = std::vector<SequenceOperation<U>*>();
 
-            //TODO: add Delta modify operation
-            //for (i = 0; i < o.size(); i++) {
-            //	if (i + 1 < o.size()) {
-            //		this->ops.push_back(new Modify)
-            //	}
-            //	else {
-            //		this->ops.push_back(o[i]);
-            //	}
-            //}
-            //
+            for (auto v : o) {
+                if (v->type() == SequenceOperation<U>::OperationType::Match) {
+                    for (auto u : buffD) {
+                        this->ops.push_back(u);
+                    }
+                    buffD.clear();
+                    for (auto u : buffI) {
+                        this->ops.push_back(u);
+                    }
+                    buffI.clear();
+                    this->ops.push_back(v);
+                }
+                if (v->type() == SequenceOperation<U>::OperationType::Delta) {
+                    for (auto u : buffD) {
+                        this->ops.push_back(u);
+                    }
+                    buffD.clear();
+                    for (auto u : buffI) {
+                        this->ops.push_back(u);
+                    }
+                    buffI.clear();
+                    this->ops.push_back(v);
+                }
+                if (v->type() == SequenceOperation<U>::OperationType::Insert) {
+                    buffI.push_back(v);
+                }
+                if (v->type() == SequenceOperation<U>::OperationType::Delete) {
+                    buffD.push_back(v);
+                }
+
+            }
+
+            for (auto u : buffD) {
+                this->ops.push_back(u);
+            }
+            buffD.clear();
+            for (auto u : buffI) {
+                this->ops.push_back(u);
+            }
+            buffI.clear();
+
+            //this->ops = o;
+
         }
 
         Delta& operator=(const Delta& other) {
@@ -97,6 +148,12 @@
                     i = s.begin() + (k + 1);
                 }
 
+                if (j->type() == SequenceOperation<U>::OperationType::Delta) {
+                    size_t k = i - s.begin();
+                    *i = j->patch(*i);
+                    i = s.begin() + (k + 1);
+                }
+
             }
 
             return s;
@@ -106,21 +163,21 @@
 
             typename std::stringstream ss;
             for (auto op : ops) {
-                if (op->type() == CollectionOperation::Match) {
-                    for (int i = 0; i < dynamic_cast<MatchSequenceOperation<U>*>(op)->getQuantity(); i++) {
-                        ss << "M";
-                    }
-                }
-                if (op->type() == CollectionOperation::Insert) {
-                    ss << "I";
-                }
-                if (op->type() == CollectionOperation::Delete) {
-                    ss << "D";
-                }
+//                if (op->type() == CollectionOperation::Match) {
+//                    for (int i = 0; i < dynamic_cast<MatchSequenceOperation<U>*>(op)->getQuantity(); i++) {
+//                        ss << "M";
+//                    }
+//                }
+//                if (op->type() == CollectionOperation::Insert) {
+//                    ss << "I";
+//                }
+//                if (op->type() == CollectionOperation::Delete) {
+//                    ss << "D";
+//                }
 
-                //ss << op->print() << "\n";
+                ss << op->print() << "\n";
             }
-            ss << "\n";
+            //ss << "\n";
             return ss.str();
 
         }
@@ -146,9 +203,16 @@
                 if (op->type() == SequenceOperation<U>::OperationType::Delete) {
                     reverseOps.push_back(new InsertSequenceOperation<U>(dynamic_cast<DeleteSequenceOperation<U>*>(op)->getValue()));
                 }
+                if (op->type() == SequenceOperation<U>::OperationType::Delta) {
+                    reverseOps.push_back(dynamic_cast<DeltaSequenceOperation<U>*>(op)->getReverseOperation());
+                }
             }
 
             return new Delta<T>(reverseOps);
+        }
+
+        Delta<T>* clone() {
+            return new Delta<T>(this->getOperations());
         }
 
         Merge<T>* merge(Delta<T>& other) {

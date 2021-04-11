@@ -37,6 +37,10 @@ public:
         return new InsertSetOperation(*this);
 	}
 
+    T patch(T& a) override {
+        return _value;
+    }
+
 protected:
     InsertSetOperation(InsertSetOperation<T> const & ) = default;
     InsertSetOperation& operator=(InsertSetOperation<T> const & ) = default;

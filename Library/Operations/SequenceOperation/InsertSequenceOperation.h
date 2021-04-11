@@ -26,6 +26,10 @@ public:
         return _value;
     }
 
+    T patch(T& a) override {
+        return _value;
+    }
+
     SequenceOperation<T>* clone() override {
         return new InsertSequenceOperation(*this);
     }

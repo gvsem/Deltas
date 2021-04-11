@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <set>
+#include <Algorithms/WFPrescription.h>
 
 //using namespace CPPDelta;
 
@@ -90,13 +91,6 @@ void demoVectors() {
 
 }
 
-template <class T>
-void print(T d) {
-    for (auto s: d) {
-        std::cout << s << " ";
-    }
-    std::cout << "\n";
-}
 
 template <class T>
 T threeWayMerge(T a, T b, T c) {
@@ -131,6 +125,28 @@ void threeSetsDemo() {
 
 }
 
+std::vector<char> s(std::string && s) {
+    return std::vector<char>(s.begin(), s.end());
+}
+
+
+template <class T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& o) {
+    for (const T& v : o) {
+        os << v << "/";
+    }
+    return os;
+}
+
+
+template <class T>
+void print(T d) {
+    for (auto s: d) {
+        std::cout << s << " ";
+    }
+    std::cout << "\n";
+}
+
 int main(int argv, char** args) {
 
     //threeSetsDemo();
@@ -138,6 +154,47 @@ int main(int argv, char** args) {
    //threeWayMerge<std::>();
 
     //std::cout << deltaAC->print() << "\n";
+
+    typedef std::vector<std::vector<char>> T;
+
+    T a = {
+            s("Good morning!"),
+            s("How are you today?"),
+            s("See you!"),
+    };
+
+    T b = {
+            s("Good afternoon!"),
+            s("How were you yesterday?"),
+            s("See you!"),
+    };
+
+    T c = {
+            s("Good evening!"),
+            s("How are you tomorrow?"),
+            s("See you soon!"),
+    };
+
+    std::cout << "\n";
+    std::cout << "\n";
+
+    T d = threeWayMerge<T>(a, b, c);
+
+    std::cout << "\n";
+    std::cout << "\n";
+
+    print<T>(d);
+
+
+//    Delta<T>* deltaAB = new Delta<T>(a, b, new WFPrescription<T, std::vector<char>>(a,b));
+//    std::cout << deltaAB->print();
+//    std::cout << "done";
+//
+//    print<T>(a);
+//    print<T>(b);
+//    T c = deltaAB->patch(a);
+//    print<T>(c);
+
 
 
 	//demoSets();

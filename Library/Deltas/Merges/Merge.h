@@ -6,6 +6,15 @@
 
 template <class T>
 class Merge : public IMerge<T> {
+public:
+
+    Merge(Delta<T>& a, Delta<T>& b) {
+
+    }
+
+    bool hasSpecialization() {
+        return false;
+    }
 
 protected:
 
