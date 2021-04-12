@@ -13,7 +13,7 @@ T threeWayMerge(T a, T b, T c) {
     Delta<T>* d2 = new Delta<T>(a, c);
     //std::cout << d1->print();
     //std::cout << d2->print();
-    Merge<T>* m = d1->merge(*d2);
+    Merge<T>* m = new Merge<T>(*d1, *d2);
     Delta<T>* d3 = m->delta();
     //std::cout << m->print();
     T result = d3->patch(a);

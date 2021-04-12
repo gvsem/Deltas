@@ -6,11 +6,11 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include "../Algorithms/EditorialPrescription.h"
-#include "../Algorithms/WFPrescription.h"
+#include "Algorithms/MyersDifferenceAlgorithm.h"
+#include "Algorithms/WFDifferenceAlgorithm.h"
 
 //template <typename U>
-//class Delta<std::vector<U>,  EditorialPrescription<std::vector<U>, U>> : public IDelta<std::vector<U>> {
+//class Delta<std::vector<U>,  MyersDifferenceAlgorithm<std::vector<U>, U>> : public IDelta<std::vector<U>> {
 //
 //};
 
@@ -23,16 +23,15 @@
         typedef std::vector<U> T;
         typedef SequenceOperation<U> CollectionOperation;
 
-        bool hasSpecialization() override {
-            return true;
+        Delta() {}
+
+
+        Delta(T& initialState, T& finalState) : Delta<std::vector<U>>(initialState, finalState, new MyersDifferenceAlgorithm<T, U>(initialState, finalState)) {
+
         }
 
-        Delta(T& initialState, T& finalState) : Delta<std::vector<U>>(initialState, finalState, new EditorialPrescription<T, U>(initialState, finalState)) {
-
-        }
-
-        Delta(T& initialState, T& finalState, VectorDifferenceAlgorithm<T, U>* algorithm) : IDelta<std::vector<U>>(initialState, finalState) {
-            VectorDifferenceAlgorithm<T, U>* sdf = algorithm;
+        Delta(T& initialState, T& finalState, IDifferenceAlgorithm<T, U>* algorithm) : IDelta<std::vector<U>>(initialState, finalState) {
+            IDifferenceAlgorithm<T, U>* sdf = algorithm;
             std::vector<SequenceOperation<U>*> o = std::vector<SequenceOperation<U>*>(sdf->getEditorialPrescription());
 
             this->ops = std::vector<SequenceOperation<U>*>();
@@ -190,7 +189,7 @@
 
     public:
 
-        Delta<T> * reverse() override {
+        Delta<T> * inverse()  {
             std::vector<SequenceOperation<U>*> reverseOps;
 
             for (SequenceOperation<U>* op : ops) {
@@ -228,16 +227,21 @@
     protected:
         std::vector<SequenceOperation<U>*> ops;
 
+        void fill(std::vector<CollectionOperation*>& operations) {
+            this->ops = operations;
+        }
+
         std::vector<CollectionOperation*> getOperations() {
             std::vector<CollectionOperation*> r;
             for (CollectionOperation* op : this->ops) {
                 r.push_back(op->clone());
             }
-
             return r;
         }
 
         friend class Merge<T>;
+        friend class MyersDifferenceAlgorithm<T, U>;
+        friend class WFDifferenceAlgorithm<T, U>;
 
     };
 

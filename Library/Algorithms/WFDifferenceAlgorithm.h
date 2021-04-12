@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Operations/SequenceOperation/SequenceOperation.h"
+#include "IDifferenceAlgorithm.h"
+
 #include <vector>
 #include <algorithm>
-#include "../Operations/SequenceOperation/SequenceOperation.h"
-
-#include "VectorDifferenceAlgorithm.h"
 
 #define INF 1000000000
 
@@ -12,13 +12,18 @@ template <class T>
 class Delta;
 
 template <class T, class U>
-class WFPrescription: public VectorDifferenceAlgorithm<T, U> {
+class WFDifferenceAlgorithm: public IDifferenceAlgorithm<T, U> {
 
 public:
 
     // O ( a.size() * b.size() )
-    WFPrescription(T& initial, T& final): a(initial), b(final) {
+    WFDifferenceAlgorithm(T& initial, T& final): a(initial), b(final) {
         this->calculate();
+    }
+
+    static void apply(T& initialState, T& finalState, Delta<T>& delta) {
+        WFDifferenceAlgorithm<T, U> a = WFDifferenceAlgorithm<T, U>(initialState, finalState);
+        delta.fill(a.getEditorialPrescription());
     }
 
     int size() override {
@@ -27,10 +32,7 @@ public:
 
     std::vector<SequenceOperation<U>*>& getEditorialPrescription() override {
 
-        //this->printTable();
-
         std::vector<SequenceOperation<U>*>* r = new std::vector<SequenceOperation<U>*>();
-
         for (int i = this->a.size(), j = this->b.size(); (i > 0) || (j > 0);) {
 
             char m = this->minimalOperation(i, j);
@@ -52,11 +54,6 @@ public:
                         r->push_back(new DeleteSequenceOperation<U>(this->a[i - 1]));
                         r->push_back(new InsertSequenceOperation<U>(this->b[j - 1]));
                     }
-
-
-                    //r->push_back(new DeltaSequenceOperation<U>(this->a[i - 1], this->b[j - 1]));
-                    //r.push_back(new DeleteSequenceOperation<T>(s1));
-                    //r.push_back(new InsertSequenceOperation<T>(s2));
                 }
                 i--;
                 j--;
@@ -65,7 +62,6 @@ public:
         }
 
         std::reverse(r->begin(), r->end());
-
         return *r;
 
     }

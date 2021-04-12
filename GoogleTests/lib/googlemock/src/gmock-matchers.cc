@@ -80,7 +80,7 @@ GTEST_API_ std::string FormatMatcherDescription(bool negation,
 //   - The edges (source, l), (l, r), and (r, sink) are added to the
 //     flow graph.
 //   - The same three edges are removed from the residual flow graph.
-//   - The reverse edges (l, source), (r, l), and (sink, r) are added
+//   - The inverse edges (l, source), (r, l), and (sink, r) are added
 //     to the residual flow graph, which is a directional graph
 //     representing unused flow capacity.
 //

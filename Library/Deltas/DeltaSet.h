@@ -68,10 +68,6 @@
             return finalState;
         }
 
-        bool hasSpecialization() override {
-            return true;
-        }
-
         std::string print() override {
 
             typename std::stringstream ss;
@@ -103,7 +99,7 @@
 
     public:
 
-        Delta<T>* reverse() override {
+        Delta<T>* inverse()  {
 
             std::vector<CollectionOperation*> reverseOps;
 

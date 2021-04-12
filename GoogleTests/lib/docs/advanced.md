@@ -989,7 +989,7 @@ Some tips on using `SCOPED_TRACE`:
     choose a unique message for `SCOPED_TRACE`. You can simply use `""`.
 4.  You can use `SCOPED_TRACE` in an inner scope when there is one in the outer
     scope. In this case, all active trace points will be included in the failure
-    messages, in reverse order they are encountered.
+    messages, in inverse order they are encountered.
 5.  The trace dump is clickable in Emacs - hit `return` on a line number and
     you'll be taken to that line in the source file!
 
@@ -1266,7 +1266,7 @@ not the tests were run.
 
 It's OK to register multiple environment objects. In this suite, their `SetUp()`
 will be called in the order they are registered, and their `TearDown()` will be
-called in the reverse order.
+called in the inverse order.
 
 Note that googletest takes ownership of the registered environment objects.
 Therefore **do not delete them** by yourself.
@@ -2036,7 +2036,7 @@ You may append more than one listener to the list. When an `On*Start()` or
 `OnTestPartResult()` event is fired, the listeners will receive it in the order
 they appear in the list (since new listeners are added to the end of the list,
 the default text printer and the default XML generator will receive the event
-first). An `On*End()` event will be received by the listeners in the *reverse*
+first). An `On*End()` event will be received by the listeners in the *inverse*
 order. This allows output by listeners added later to be framed by output from
 listeners added earlier.
 

@@ -1269,7 +1269,7 @@ std::vector<EditType> CalculateOptimalEdits(const std::vector<size_t>& left,
     }
   }
 
-  // Reconstruct the best path. We do it in reverse order.
+  // Reconstruct the best path. We do it in inverse order.
   std::vector<EditType> best_path;
   for (size_t l_i = left.size(), r_i = right.size(); l_i > 0 || r_i > 0;) {
     EditType move = best_move[l_i][r_i];
@@ -3821,7 +3821,7 @@ void TestEventRepeater::Name(const Type& parameter) { \
     } \
   } \
 }
-// This defines a member that forwards the call to all listeners in reverse
+// This defines a member that forwards the call to all listeners in inverse
 // order.
 #define GTEST_REVERSE_REPEATER_METHOD_(Name, Type)      \
   void TestEventRepeater::Name(const Type& parameter) { \
@@ -5255,7 +5255,7 @@ TestEventListeners& UnitTest::listeners() {
 // program is run, all global test environments will be set-up in the
 // order they were registered.  After all tests in the program have
 // finished, all global test environments will be torn-down in the
-// *reverse* order they were registered.
+// *inverse* order they were registered.
 //
 // The UnitTest object takes ownership of the given environment.
 //
@@ -5867,7 +5867,7 @@ bool UnitTestImpl::RunAllTests() {
         }
       }
 
-      // Tears down all environments in reverse order afterwards.
+      // Tears down all environments in inverse order afterwards.
       repeater->OnEnvironmentsTearDownStart(*parent_);
       std::for_each(environments_.rbegin(), environments_.rend(),
                     TearDownEnvironment);

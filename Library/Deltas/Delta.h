@@ -2,7 +2,6 @@
 
 #include "IDelta.h"
 
-
 template <class T>
 class Delta : public IDelta<T> {
 
@@ -29,7 +28,7 @@ public:
         return this->_finalState;
     }
 
-    Delta<T>* reverse() {
+    Delta<T>* inverse() {
         return new Delta<T>(this->_finalState, this->_initialState);
     }
 

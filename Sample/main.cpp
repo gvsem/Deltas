@@ -5,8 +5,8 @@
 
 #include <vector>
 #include <set>
-#include <Algorithms/WFPrescription.h>
-#include "Contact.h"
+#include <Algorithms/WFDifferenceAlgorithm.h>
+#include "Contacts.h"
 
 //using namespace CPPDelta;
 
@@ -23,8 +23,8 @@ void demoDiff(T& a, T& b) {
 	}
 	std::cout << "\n";
 
-	std::cout << d->reverse()->print();
-	T g = d->reverse()->patch(c);
+	std::cout << d->inverse()->print();
+	T g = d->inverse()->patch(c);
 
 	for (auto a : g) {
 		std::cout << a << " ";
@@ -57,8 +57,8 @@ void demoStrings() {
 	}
 	std::cout << "\n";
 
-	std::cout << d->reverse()->print();
-	T g = d->reverse()->patch(c);
+	std::cout << d->inverse()->print();
+	T g = d->inverse()->patch(c);
 
 	for (auto a : g) {
 		std::cout << a << " ";
@@ -74,7 +74,9 @@ void demoVectors() {
 	std::vector<int> a = { 1, 2, 3, 4, 5 };
 	std::vector<int> b = { 1, 3, 5, 4, 7 };
 
-	Delta<std::vector<int>>* d = new Delta<std::vector<int>>(a, b);
+    Delta<T>* d = new Delta<T>();
+    MyersDifferenceAlgorithm<T, int>::apply(a,b,*d);
+	//Delta<std::vector<int>>* d = new Delta<std::vector<int>>(a, b);
 	std::cout << d->print();
 	std::vector<int> c = d->patch(a);
 
@@ -83,8 +85,8 @@ void demoVectors() {
 	}
 	std::cout << "\n";
 
-	std::cout << d->reverse()->print();
-	std::vector<int> g = d->reverse()->patch(c);
+	std::cout << d->inverse()->print();
+	std::vector<int> g = d->inverse()->patch(c);
 
 	for (auto a : g) {
 		std::cout << a << " ";
@@ -196,44 +198,54 @@ int main(int argv, char** args) {
 
     //std::cout << deltaAC->print() << "\n";
 
+    //demoVectors();
+
+
+    threeWayMergeText();
+    return 0;
+
     typedef Contact T;
 
-    Contact a = Contact();
-    a.addName("Ivan");
-    a.addName("Petrov");
-    a.addPhone("+78882220920");
-    a.addPhone("+76662220920");
-    a.addPhone("+79992220920");
+    Contacts a = Contacts();
+    Contacts b = Contacts();
+    Contacts c = Contacts();
+    Contacts d;
 
-    Contact b = Contact();
-    b.addName("Ivan");
-    b.addName("Sergeevich");
-    b.addName("Petrov");
-    b.addPhone("+78882220920");
-    b.addPhone("+79992220940");
+    a.addContact()
+    .addName("Ivan")
+    ->addName("Petrov")
+    ->addPhone("+78882220920")
+    ->addPhone("+76662220920")
+    ->addPhone("+79992220920");
 
-    Contact c = Contact();
-    c.addName("Ivan");
-    c.addName("Petrov-Vodkin");
-    c.addPhone("+78882220920");
-    c.addPhone("+76662220920");
-    c.addPhone("+79992220920");
-    c.addPhone("+77772220920");
+    std::cout << a.print() << "\n";
 
-    Delta<T>* d1 = new Delta<T>(a, b);
-    Delta<T>* d2 = new Delta<T>(a, c);
-    //std::cout << d1->print();
-    //std::cout << d2->print();
-    Merge<T>* m = new Merge<T>(*d1, *d2);
-    Delta<T>* d3 = m->delta();
-    //std::cout << m->print();
-    T result = d3->patch(a);
+    b.addContact()
+    .addName("Ivan")
+    ->addName("Sergeevich")
+    ->addName("Petrov")
+    ->addPhone("+78882220920")
+    ->addPhone("+79992220940");
 
-    //Contact ABC = threeWayMerge<Contact>(a, b, c);
+    std::cout << b.print() << "\n";
+
+    c.addContact()
+    .addName("Ivan")
+    ->addName("Petrov-Vodkin")
+    ->addPhone("+78882220920")
+    ->addPhone("+76662220920")
+    ->addPhone("+79992220920")
+    ->addPhone("+77772220920");
+
+    std::cout << c.print() << "\n";
+
+
+    Contacts ABC = threeWayMerge<Contacts>(a, b, c);
+    std::cout << ABC.print();
 
 
 
-//    Delta<T>* deltaAB = new Delta<T>(a, b, new WFPrescription<T, std::vector<char>>(a,b));
+//    Delta<T>* deltaAB = new Delta<T>(a, b, new WFDifferenceAlgorithm<T, std::vector<char>>(a,b));
 //    std::cout << deltaAB->print();
 //    std::cout << "done";
 //

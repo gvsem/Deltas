@@ -76,10 +76,6 @@ public:
         return new Delta<T>(this->getOperations());
     }
 
-    bool hasSpecialization() override {
-        return true;
-    }
-
     std::string print() override {
 
         typename std::stringstream ss;
@@ -113,7 +109,7 @@ private:
 
 public:
 
-    Delta<T>* reverse() override {
+    Delta<T>* inverse() {
 
         std::vector<CollectionOperation*> reverseOps;
 

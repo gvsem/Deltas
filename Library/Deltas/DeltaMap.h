@@ -80,10 +80,6 @@ public:
 
     }
 
-    bool hasSpecialization() override {
-        return true;
-    }
-
     std::string print() override {
 
         typename std::stringstream ss;
@@ -103,7 +99,7 @@ private:
 
 public:
 
-    Delta<T>* reverse() override {
+    Delta<T>* inverse() {
 
         std::vector<CollectionOperation*> reverseOps;
 
@@ -118,7 +114,7 @@ public:
             }
             if (op->type() == CollectionOperation::OperationType::Delta) {
                 auto opE = dynamic_cast<DeltaMapOperation<K, V>*>(op);
-                reverseOps.push_back(new DeltaMapOperation<K, V>(op->getKey(), opE->getDelta().reverse()));
+                reverseOps.push_back(new DeltaMapOperation<K, V>(op->getKey(), opE->getDelta().inverse()));
             }
         }
 

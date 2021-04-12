@@ -6,7 +6,7 @@
 #include <string>
 #include <exception>
 #include <stdexcept>
-#include <Algorithms/VectorDifferenceAlgorithm.h>
+#include <Algorithms/IDifferenceAlgorithm.h>
 #include "Delta.h"
 
 template <class T>
@@ -38,7 +38,7 @@ public:
 	}
 
     virtual bool hasSpecialization() {
-        return false;
+        return true;
     }
 
 //	virtual T patch(T& initialState) {
@@ -46,10 +46,10 @@ public:
 //		return T();
 //	}
 
-	virtual IDelta<T>* reverse() {
-		throw std::runtime_error("Not implemented method.");
-		return this;
-	}
+//	virtual IDelta<T>* inverse() {
+//		throw std::runtime_error("Not implemented method.");
+//		return this;
+//	}
 
 	virtual IDelta<T>* clone() {
         throw std::runtime_error("Not implemented method.");

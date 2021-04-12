@@ -36,6 +36,23 @@ public:
         return this->telephones;
     }
 
+    std::string print() {
+        typename std::stringstream ss;
+        ss << "Names: ";
+        for (auto i : this->names) {
+            ss << i << " ";
+        }
+        ss << "\nPhones: ";
+        for (auto i : this->telephones) {
+            ss << i << " ";
+        }
+        ss << "\n";
+        return ss.str();
+    }
+
+    bool operator==(Contact& a) {
+        return (a.names == names) && (a.telephones == telephones);
+    }
 
 protected:
 
@@ -44,8 +61,13 @@ protected:
 
     friend class Delta<Contact>;
 
+
 };
 
+std::ostream& operator<<(std::ostream& os, Contact& o) {
+    os << o.print();
+    return os;
+}
 
 template <>
 class Delta<Contact> : public IDelta<Contact> {

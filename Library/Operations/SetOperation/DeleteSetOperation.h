@@ -15,12 +15,6 @@ public:
 		return SetOperation<T>::OperationType::Delete;
 	}
 
-	std::string print() override {
-		typename std::stringstream ss;
-		ss << "Delete " << _value << " x" << _quantity;
-		return ss.str();
-	}
-
     T& getValue() override {
         return _value;
     }
@@ -40,6 +34,13 @@ public:
     T patch(T& a) override {
         return _value;
     }
+
+    std::string print() override {
+        typename std::stringstream ss;
+        ss << "Delete " << _value << " x" << _quantity;
+        return ss.str();
+    }
+
 
 protected:
     DeleteSetOperation(DeleteSetOperation<T> const & ) = default;

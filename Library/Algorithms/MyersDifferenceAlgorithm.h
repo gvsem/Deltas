@@ -10,44 +10,45 @@
 //class Delta;
 //#include "Delta.h"
 
-#include "VectorDifferenceAlgorithm.h"
+#include "IDifferenceAlgorithm.h"
 
 #define DEFAULT_MYERS_D 50
 #define INF 1000000000
 
 template <class T, class U>
-class EditorialPrescription: public VectorDifferenceAlgorithm<T, U> {
-
-	//typedef T::value_type U;
+class MyersDifferenceAlgorithm: public IDifferenceAlgorithm<T, U> {
 
 public:
 
-    EditorialPrescription(T& initial, T& final) : _initial(initial), _final(final) {
+    MyersDifferenceAlgorithm(T& initial, T& final) : _initial(initial), _final(final) {
         this->maxD = DEFAULT_MYERS_D;
     }
 
-	EditorialPrescription(T& initial, T& final, int d) : _initial(initial), _final(final), maxD(d) {
+	MyersDifferenceAlgorithm(T& initial, T& final, int d) : _initial(initial), _final(final), maxD(d) {
 		this->maxD = std::max(5, d);
 	}
 
-	std::string print() override {
+    static void apply(T& initialState, T& finalState, Delta<T>& delta) {
+        MyersDifferenceAlgorithm<T, U> a = MyersDifferenceAlgorithm<T, U>(initialState, finalState);
+        delta.fill(a.getEditorialPrescription());
+    }
 
+    std::vector<SequenceOperation<U>*>& getEditorialPrescription() override {
+        this->calculate();
+        return this->ops;
+    }
+
+    int size() override {
+        this->calculate();
+        return ops.size();
+    }
+
+	std::string print() override {
 		typename std::stringstream ss;
 		for (auto op : ops) {
 			ss << op->print() << "\n";
 		}
 		return ss.str();
-
-	}
-
-	int size() override {
-        this->calculate();
-	    return ops.size();
-	}
-
-	std::vector<SequenceOperation<U>*>& getEditorialPrescription() override {
-        this->calculate();
-		return this->ops;
 	}
 
 protected:
@@ -108,29 +109,10 @@ protected:
 
 		}
 
-		std::cout << "done";
-
-		//M->
-//		for (int i = 0; i < M.size(); i++) {
-//			std::cout << i << " -> ";
-//			for (int j = 0; j < M[i].size(); j++) {
-//				if (M[i][j] != INF) {
-//					std::cout << M[i][j] << " | ";
-//				}
-//				else {
-//					std::cout << "--" << " | ";
-//				}
-//			}
-//			std::cout << "\n";
-//		}
-//		std::cout << "\n";
-
-
 		int k = finalK;
 		for (int d = finalI; d >= 1; d--) {
 
 			int matches = 0;
-			//MyersTree::EditorialGraphReason debuggg = M.at(d, k).second;
 			if (M.at(d, k).second == MyersTree::EditorialGraphReason::Deletion) {
 				matches = M.at(d, k).first - M.at(d - 1, k - 1).first - 1;
 			}
@@ -139,7 +121,6 @@ protected:
 			}
 
 			int matchQuantity = 0;
-
 			int j = M.at(d, k).first;
 			while ((j > 0) && (matches > 0) && (j - 1 - k >= 0) && (j != INF) && (this->_initial[j - 1] == this->_final[j - 1 - k])) {
 				matchQuantity++;

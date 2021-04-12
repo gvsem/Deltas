@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Deltas/Delta.h"
 #include "Merge.h"
-#include <map>
+#include "Operations/MapOperation/MapOperation.h"
 
-#include "../Delta.h"
+#include <map>
 
 template <typename K, typename V>
 class Merge<std::map<K, V>> : public IMerge<std::map<K, V>> {
@@ -18,8 +19,9 @@ public:
         PreferB
     };
 
-    bool hasSpecialization() override {
-        return true;
+    Merge(Delta<T>& a, Delta<T>& b) {
+        this->operationsA = a.getOperations();
+        this->operationsB = b.getOperations();
     }
 
     Delta<T>* delta() override {
@@ -29,16 +31,11 @@ public:
     Delta<T>* delta(ConflictPolicy policy) {
 
         std::vector<CollectionOperation*> r = std::vector<CollectionOperation*>();
-
-        // I I
-        // I D
-
         std::map<K, std::pair<CollectionOperation*, CollectionOperation*>> operationalDifference;
 
         for (CollectionOperation* op : this->operationsA) {
             operationalDifference[op->getKey()].first = op;
         }
-
         for (CollectionOperation* op : this->operationsB) {
             operationalDifference[op->getKey()].second = op;
         }
@@ -47,6 +44,7 @@ public:
 
             typename CollectionOperation::OperationType a = CollectionOperation::OperationType::Empty;
             typename CollectionOperation::OperationType b = CollectionOperation::OperationType::Empty;
+
             if (p.second.first != nullptr) {
                 a = p.second.first->type();
             }
@@ -64,10 +62,8 @@ public:
 
             if (a == CollectionOperation::OperationType::Insert) {
                 if (b == CollectionOperation::OperationType::Insert) {
-
                     InsertMapOperation<K, V>* opA = dynamic_cast<InsertMapOperation<K, V>*>(p.second.first);
                     InsertMapOperation<K, V>* opB = dynamic_cast<InsertMapOperation<K, V>*>(p.second.second);
-
                     if (opA->getValue() == opB->getValue()) {
                         r.push_back(p.second.first);
                     } else {
@@ -95,12 +91,9 @@ public:
 
             if (a == CollectionOperation::OperationType::Delta) {
                 if (b == CollectionOperation::OperationType::Delta) {
-
                     DeltaMapOperation<K, V>* opA = dynamic_cast<DeltaMapOperation<K, V>*>(p.second.first);
                     DeltaMapOperation<K, V>* opB = dynamic_cast<DeltaMapOperation<K, V>*>(p.second.second);
-
                     Merge<V>* m = new Merge<V>(opA->getDelta(), opB->getDelta());
-
                     if (m->hasSpecialization()) {
                         r.push_back(new DeltaMapOperation<K, V>(opA->getKey(), m->delta()));
                     } else {
@@ -111,8 +104,6 @@ public:
                             r.push_back(opB);
                         }
                     }
-
-
                 }
                 if (b == CollectionOperation::OperationType::Delete) {
                     if (policy == ConflictPolicy::PreferA) {
@@ -128,18 +119,9 @@ public:
         return new Delta<T>(r);
     }
 
-    bool hasConflicts() override {
-        return false;
-    }
-
-    std::string print() {
+    std::string print() override {
         std::string r;
         return r;
-    }
-
-    Merge(Delta<T>& a, Delta<T>& b) {
-        this->operationsA = a.getOperations();
-        this->operationsB = b.getOperations();
     }
 
 protected:
@@ -147,5 +129,4 @@ protected:
     std::vector<CollectionOperation*> operationsB;
 
     friend class Delta<T>;
-
 };

@@ -6912,7 +6912,7 @@ TEST(TestEventListenersTest, Append) {
 }
 
 // Tests that listeners receive events in the order they were appended to
-// the list, except for *End requests, which must be received in the reverse
+// the list, except for *End requests, which must be received in the inverse
 // order.
 class SequenceTestingListener : public EmptyTestEventListener {
  public:

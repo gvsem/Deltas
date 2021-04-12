@@ -15,12 +15,6 @@ public:
 		return SetOperation<T>::OperationType::Insert;
 	}
 
-	std::string print() override {
-		typename std::stringstream ss;
-		ss << "Insert " << _value << " x" << _quantity;
-		return ss.str();
-	}
-
 	T& getValue() override {
 		return _value;
 	}
@@ -39,6 +33,12 @@ public:
 
     T patch(T& a) override {
         return _value;
+    }
+
+    std::string print() override {
+        typename std::stringstream ss;
+        ss << "Insert " << _value << " x" << _quantity;
+        return ss.str();
     }
 
 protected:

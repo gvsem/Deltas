@@ -21,17 +21,16 @@ public:
         return SequenceOperation<T>::OperationType::Delta;
     }
 
-    T patch(T& a) override {
-        return this->delta->patch(a);
-    }
-
     Delta<T>& getDelta() {
         return *delta;
     }
 
+    SequenceOperation<T>* clone() override {
+        return new DeltaSequenceOperation(this->delta->clone());
+    }
 
-    DeltaSequenceOperation<T>* getReverseOperation() {
-        return new DeltaSequenceOperation<T>(this->delta->reverse());
+    T patch(T& a) override {
+        return this->delta->patch(a);
     }
 
     std::string print() override {
@@ -40,14 +39,13 @@ public:
         return ss.str();
     }
 
-    SequenceOperation<T>* clone() override {
-        return new DeltaSequenceOperation(this->delta->clone());
+    DeltaSequenceOperation<T>* getReverseOperation() {
+        return new DeltaSequenceOperation<T>(this->delta->inverse());
     }
 
     ~DeltaSequenceOperation() {
         delete delta;
     }
-
 
 protected:
     //InsertSequenceOperation() = default;

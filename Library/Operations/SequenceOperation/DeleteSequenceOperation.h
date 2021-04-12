@@ -13,22 +13,22 @@ public:
         return SequenceOperation<T>::OperationType::Delete;
     }
 
-    std::string print() override {
-        typename std::stringstream ss;
-        ss << "Delete " << _value;
-        return ss.str();
-    }
-
     T& getValue() {
         return _value;
+    }
+
+    SequenceOperation<T>* clone() override {
+        return new DeleteSequenceOperation(*this);
     }
 
     T patch(T& a) override {
         return _value;
     }
 
-    SequenceOperation<T>* clone() override {
-        return new DeleteSequenceOperation(*this);
+    std::string print() override {
+        typename std::stringstream ss;
+        ss << "Delete " << _value;
+        return ss.str();
     }
 
 protected:

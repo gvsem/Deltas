@@ -959,7 +959,7 @@ IsNotContainer IsContainerTest(long /* dummy */) { return '\0'; }
 // Trait to detect whether a type T is a hash table.
 // The heuristic used is that the type contains an inner type `hasher` and does
 // not contain an inner type `reverse_iterator`.
-// If the container is iterable in reverse, then order might actually matter.
+// If the container is iterable in inverse, then order might actually matter.
 template <typename T>
 struct IsHashTable {
  private:
