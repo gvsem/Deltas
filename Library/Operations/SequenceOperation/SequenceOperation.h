@@ -14,7 +14,7 @@ public:
 		Empty,
 		Insert,
 		Delete,
-		Modify,
+		Delta,
 		Match
 	};
 
@@ -35,4 +35,5 @@ protected:
 #include "InsertSequenceOperation.h"
 #include "DeleteSequenceOperation.h"
 #include "MatchSequenceOperation.h"
+#include "DeltaSequenceOperation.h"
 

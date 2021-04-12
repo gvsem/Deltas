@@ -1396,7 +1396,7 @@ class GTEST_API_ UnitTest {
   // program is run, all global test environments will be set-up in
   // the order they were registered.  After all tests in the program
   // have finished, all global test environments will be torn-down in
-  // the *reverse* order they were registered.
+  // the *inverse* order they were registered.
   //
   // The UnitTest object takes ownership of the given environment.
   //

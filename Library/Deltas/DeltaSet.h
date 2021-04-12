@@ -99,7 +99,7 @@
 
     public:
 
-        Delta<T>* reverse() override {
+        Delta<T>* invert()  {
 
             std::vector<CollectionOperation*> reverseOps;
 
@@ -119,6 +119,11 @@
 
             return new Delta<T>(reverseOps, counts);
 
+        }
+
+
+        Delta<T>* clone() {
+            return new Delta<T>(this->getOperations());
         }
 
         Merge<T>* merge(Delta<T>& other) {

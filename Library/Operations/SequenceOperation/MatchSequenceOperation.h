@@ -13,12 +13,6 @@ public:
         return SequenceOperation<T>::OperationType::Match;
     }
 
-    std::string print() override {
-        typename std::stringstream ss;
-        ss << "Match x" << _quantity;
-        return ss.str();
-    }
-
     int getQuantity() {
         return _quantity;
     }
@@ -27,8 +21,17 @@ public:
         return new MatchSequenceOperation(*this);
     }
 
+    T patch(T& a) override {
+        return T();
+    }
+
+    std::string print() override {
+        typename std::stringstream ss;
+        ss << "Match x" << _quantity;
+        return ss.str();
+    }
+
 protected:
-    //MatchSequenceOperation() = default;
     MatchSequenceOperation(MatchSequenceOperation<T> const & ) = default;
     MatchSequenceOperation& operator=(MatchSequenceOperation<T> const & ) = default;
 

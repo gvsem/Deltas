@@ -2,7 +2,6 @@
 
 #include "IDelta.h"
 
-
 template <class T>
 class Delta : public IDelta<T> {
 
@@ -29,13 +28,25 @@ public:
         return this->_finalState;
     }
 
-    Delta<T>* reverse() {
-        return Delta<T>(this->_finalState, this->_initialState);
+    Delta<T>* invert() {
+        return new Delta<T>(this->_finalState, this->_initialState);
+    }
+
+    Delta<T>* clone() {
+        return new Delta<T>(_initialState, _finalState);
     }
 
     ~Delta() override {
 
     }
+
+    bool hasSpecialization() override {
+        return false;
+    }
+
+    // =====================
+
+
 
 private:
 
@@ -49,3 +60,4 @@ private:
 #include "DeltaSet.h"
 #include "DeltaMultiset.h"
 #include "DeltaVector.h"
+#include "DeltaMap.h"

@@ -6,13 +6,17 @@
 #include <string>
 #include <exception>
 #include <stdexcept>
+#include <Algorithms/IDifferenceAlgorithm.h>
 #include "Delta.h"
 
 template <class T>
 class IMerge;
 
 template <class T>
-class IDelta {
+class IOperation;
+
+template <class T>
+class IDelta: public IOperation<T> {
 
 public:
 
@@ -33,14 +37,23 @@ public:
 		return *this;
 	}
 
-	virtual T patch(T& initialState) {
-        throw std::runtime_error("Not implemented method.");
-		return T();
-	}
+    virtual bool hasSpecialization() {
+        return true;
+    }
 
-	virtual IDelta<T>* reverse() {
-		throw std::runtime_error("Not implemented method.");
-		return this;
+//	virtual T patch(T& initialState) {
+//        throw std::runtime_error("Not implemented method.");
+//		return T();
+//	}
+
+//	virtual IDelta<T>* invert() {
+//		throw std::runtime_error("Not implemented method.");
+//		return this;
+//	}
+
+	virtual IDelta<T>* clone() {
+        throw std::runtime_error("Not implemented method.");
+        return this;
 	}
 
 //    virtual IMerge<T>* merge(IDelta<T>& other) {
@@ -48,10 +61,10 @@ public:
 //        return nullptr;
 //    }
 
-	virtual std::string print() {
-        throw std::runtime_error("Not implemented method.");
-        return "";
-	}
+//	virtual std::string print() {
+//        throw std::runtime_error("Not implemented method.");
+//        return "";
+//	}
 
 	virtual ~IDelta() {
 

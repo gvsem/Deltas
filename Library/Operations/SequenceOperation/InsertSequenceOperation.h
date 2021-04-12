@@ -16,18 +16,22 @@ public:
         return SequenceOperation<T>::OperationType::Insert;
     }
 
-    std::string print() override {
-        typename std::stringstream ss;
-        ss << "Insert " << _value;
-        return ss.str();
-    }
-
     T& getValue() {
         return _value;
     }
 
     SequenceOperation<T>* clone() override {
         return new InsertSequenceOperation(*this);
+    }
+
+    T patch(T& a) override {
+        return _value;
+    }
+
+    std::string print() override {
+        typename std::stringstream ss;
+        ss << "Insert " << _value;
+        return ss.str();
     }
 
 protected:

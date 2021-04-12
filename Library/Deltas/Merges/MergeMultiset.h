@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Merge.h"
-#include <set>
+#include "Deltas/Delta.h"
 
-#include "../Delta.h"
+#include <set>
 
 template <typename U>
 class Merge<std::multiset<U>> : public IMerge<std::multiset<U>> {
@@ -16,69 +16,8 @@ public:
         PreferA,
         PreferB,
         ConsolidateDeletions,
-        ConsolidateInsertions,
-        Skip
+        ConsolidateInsertions
     };
-
-    Delta<T>* delta(ConflictPolicy policy) {
-
-        this->calculateOperationalDifference();
-        std::vector<CollectionOperation*> r = std::vector<CollectionOperation*>();
-
-        for (auto& p : this->operationalDifference) {
-
-            long a = 0;
-            long b = 0;
-            if (p.second.first != nullptr) {
-                a = p.second.first->getBalance();
-            }
-            if (p.second.second != nullptr) {
-                b = p.second.second->getBalance();
-            }
-
-            CollectionOperation * op = this->getResultOperation(p.first, a, b, policy);
-            if (op != nullptr) {
-                r.push_back(op);
-            }
-
-        }
-
-        return new Delta<T>(r);
-    }
-
-    bool hasConflicts() override {
-        return false;
-    }
-
-    std::string print() {
-
-        this->calculateOperationalDifference();
-
-        std::string r;
-        for (auto& p : this->operationalDifference) {
-
-            long a = 0;
-            long b = 0;
-            if (p.second.first != nullptr) {
-                a = p.second.first->getBalance();
-            }
-            if (p.second.second != nullptr) {
-                b = p.second.second->getBalance();
-            }
-
-            if (a == b) {
-                r += "MATCH: " + p.second.first->print() + "\n";
-            } else if (a == 0) {
-                r += "CONFLICT" + p.second.first->print() + " VS. " + p.second.second->print() + "\n";
-            }
-        }
-
-        return r;
-
-    }
-
-
-protected:
 
     Merge(Delta<T>& a, Delta<T>& b) {
         this->operationsA = a.getOperations();
@@ -86,21 +25,45 @@ protected:
         this->operationalDifference = std::map<U, std::pair<CollectionOperation*, CollectionOperation*>>();
     }
 
-    void calculateOperationalDifference() {
+    Delta<T>* delta() override {
+        return delta(ConflictPolicy::PreferA);
+    }
 
-        if (this->operationalDifference.size() != 0) {
-            return;
-        }
+    Delta<T>* delta(ConflictPolicy policy) {
 
+        auto operationalDifference = std::map<U, std::pair<CollectionOperation*, CollectionOperation*>>();
         for (CollectionOperation* op : this->operationsA) {
             this->operationalDifference[op->getValue()].first = op;
         }
-
         for (CollectionOperation* op : this->operationsB) {
             this->operationalDifference[op->getValue()].second = op;
         }
+        
+        std::vector<CollectionOperation*> r = std::vector<CollectionOperation*>();
+        for (auto& p : this->operationalDifference) {
+            long a = 0;
+            long b = 0;
+            if (p.second.first != nullptr) {
+                a = p.second.first->getBalance();
+            }
+            if (p.second.second != nullptr) {
+                b = p.second.second->getBalance();
+            }
+            CollectionOperation * op = this->getResultOperation(p.first, a, b, policy);
+            if (op != nullptr) {
+                r.push_back(op);
+            }
+        }
 
+        return new Delta<T>(r);
     }
+
+    std::string print() {
+        
+    }
+
+
+protected:
 
     long getResultBalance(long a, long b, ConflictPolicy policy) {
         if (a == b) {
@@ -141,10 +104,8 @@ protected:
         }
     }
 
-
     std::vector<CollectionOperation*> operationsA;
     std::vector<CollectionOperation*> operationsB;
-    std::map<U, std::pair<CollectionOperation*, CollectionOperation*>> operationalDifference;
 
     friend class Delta<T>;
 

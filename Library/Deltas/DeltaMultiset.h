@@ -72,6 +72,10 @@ public:
         return finalState;
     }
 
+    Delta<T>* clone() {
+        return new Delta<T>(this->getOperations());
+    }
+
     std::string print() override {
 
         typename std::stringstream ss;
@@ -105,7 +109,7 @@ private:
 
 public:
 
-    Delta<T>* reverse() override {
+    Delta<T>* invert() {
 
         std::vector<CollectionOperation*> reverseOps;
 

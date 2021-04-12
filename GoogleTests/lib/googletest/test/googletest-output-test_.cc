@@ -1098,7 +1098,7 @@ int main(int argc, char **argv) {
 
   // Registers two global test environments.
   // The golden file verifies that they are set up in the order they
-  // are registered, and torn down in the reverse order.
+  // are registered, and torn down in the inverse order.
   testing::AddGlobalTestEnvironment(new FooEnvironment);
   testing::AddGlobalTestEnvironment(new BarEnvironment);
 #if _MSC_VER
