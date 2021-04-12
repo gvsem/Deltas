@@ -13,84 +13,84 @@
 template <class T>
 void demoDiff(T& a, T& b) {
 
-	Delta<T>* d = new Delta<T>(a, b);
-	std::cout << d->print();
+    Delta<T>* d = new Delta<T>(a, b);
+    std::cout << d->print();
 
-	T c = d->patch(a);
+    T c = d->patch(a);
 
-	for (auto a : c) {
-		std::cout << a << " ";
-	}
-	std::cout << "\n";
+    for (auto a : c) {
+        std::cout << a << " ";
+    }
+    std::cout << "\n";
 
-	std::cout << d->invert()->print();
-	T g = d->invert()->patch(c);
+    std::cout << d->invert()->print();
+    T g = d->invert()->patch(c);
 
-	for (auto a : g) {
-		std::cout << a << " ";
-	}
+    for (auto a : g) {
+        std::cout << a << " ";
+    }
 
 }
 
 void demoSets() {
-	std::set<int> a = { 1, 2, 3, 4, 5 };
-	std::set<int> b = { 1, 3, 5, 4, 7 };
+    std::set<int> a = { 1, 2, 3, 4, 5 };
+    std::set<int> b = { 1, 3, 5, 4, 7 };
 
-	demoDiff<std::set<int>>(a, b);
+    demoDiff<std::set<int>>(a, b);
 }
 
 void demoStrings() {
-	
-	typedef std::vector<char> T;
 
-	std::string str1 = "Good morning, everyone! My name is Ivan.";
-	std::string str2 = "Good evening, every! My surname is Ivanov.";
-	T a(str1.begin(), str1.end());
-	T b(str2.begin(), str2.end());
+    typedef std::vector<char> T;
 
-	Delta<T>* d = new Delta<T>(a, b);
-	std::cout << d->print();
-	T c = d->patch(a);
+    std::string str1 = "Good morning, everyone! My name is Ivan.";
+    std::string str2 = "Good evening, every! My surname is Ivanov.";
+    T a(str1.begin(), str1.end());
+    T b(str2.begin(), str2.end());
 
-	for (auto a : c) {
-		std::cout << a << " ";
-	}
-	std::cout << "\n";
+    Delta<T>* d = new Delta<T>(a, b);
+    std::cout << d->print();
+    T c = d->patch(a);
 
-	std::cout << d->invert()->print();
-	T g = d->invert()->patch(c);
+    for (auto a : c) {
+        std::cout << a << " ";
+    }
+    std::cout << "\n";
 
-	for (auto a : g) {
-		std::cout << a << " ";
-	}
+    std::cout << d->invert()->print();
+    T g = d->invert()->patch(c);
 
-	demoDiff<T>(a, b);
+    for (auto a : g) {
+        std::cout << a << " ";
+    }
+
+    demoDiff<T>(a, b);
 }
 
 void demoVectors() {
 
-	typedef std::vector<int> T;
+    typedef std::vector<int> T;
 
-	std::vector<int> a = { 1, 2, 3, 4, 5 };
-	std::vector<int> b = { 1, 3, 5, 4, 7 };
+    std::vector<int> a = { 1, 2, 3, 4, 5 };
+    std::vector<int> b = { 1, 3, 5, 4, 7 };
 
-    Delta<T>* d = new Delta<T>();
-    MyersDifferenceAlgorithm<T, int>::apply(a,b,*d);
-	//Delta<std::vector<int>>* d = new Delta<std::vector<int>>(a, b);
-	std::cout << d->print();
-	std::vector<int> c = d->patch(a);
+    Delta<T>* d = new Delta<T>(a,b);
+    // MyersDifferenceAlgorithm<T, int>::apply(a,b,*d);
+    //Delta<std::vector<int>>* d = new Delta<std::vector<int>>(a, b);
+    std::cout << d->print();
+    std::vector<int> c = d->patch(a);
 
-	for (auto a : c) {
-		std::cout << a << " ";
-	}
-	std::cout << "\n";
+    for (auto a : c) {
+        std::cout << a << " ";
+    }
+    std::cout << "\n";
 
-	std::cout << d->invert()->print();
-	std::vector<int> g = d->invert()->patch(c);
+    std::cout << d->invert()->print();
+    std::vector<int> g = d->invert()->patch(c);
 
-	for (auto a : g) {
-		std::cout << a << " ";
-	}
+    for (auto a : g) {
+        std::cout << a << " ";
+    }
 
 }
 
@@ -117,7 +117,7 @@ std::vector<char> s(std::string && s) {
 template <class T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& o) {
     for (const T& v : o) {
-        os << v << "/";
+        os << v << "";
     }
     return os;
 }
@@ -162,29 +162,71 @@ void threeWayMergeText() {
     typedef std::vector<std::vector<char>> T;
     typedef std::vector<char> U;
 
+//    T a = {
+//            s("Good morning!"),
+//            s("How are you today?"),
+//            s("See you!"),
+//    };
+//
+//    T b = {
+//            s("Good afternoon!"),
+//            s("How were you yesterday?"),
+//            s("See you!"),
+//    };
+//
+//    T c = {
+//            s("Good evening!"),
+//            s("How are you tomorrow?"),
+//            s("See you soon!"),
+//    };
+
     T a = {
-            s("Good morning!"),
-            s("How are you today?"),
-            s("See you!"),
+            s("Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
+            s("Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."),
+            s("Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."),
+            s("Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
     };
 
     T b = {
-            s("Good afternoon!"),
-            s("How were you yesterday?"),
-            s("See you!"),
+            s("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."),
+            s("Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."),
+            s("Excepteur sint occaecat cupidatat non proident, sunt qui officia deserunt mollit anim id est laborum."),
+            s("Ut laboris nisi ut aliquip ex ea commodo consequat.")
     };
 
     T c = {
-            s("Good evening!"),
-            s("How are you tomorrow?"),
-            s("See you soon!"),
+            s("Lorem ipsum dolor sit amet, adipiscing elit."),
+            s("Ut enim ad minim veniam, quis nostrud ullamco laboris nisi ut aliquip ex ea commodo consequat."),
+            s("Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."),
+            s("Excepteur sint occaecat, in culpa, qui cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
     };
 
     std::cout << "\n";
     std::cout << "\n";
 
-    Delta<T>* d1 = new Delta<T>(a, b, new WFDifferenceAlgorithm<T, U>(a, b));
-    Delta<T>* d2 = new Delta<T>(a, c, new WFDifferenceAlgorithm<T, U>(a, c));
+    Delta<T>* d1 = new Delta<T>(a, b);//, new WFDifferenceAlgorithm<T, U>(a, b));
+    T patchB = d1->patch(a);
+
+    Delta<T>* d2 = new Delta<T>(a, c); //, new WFDifferenceAlgorithm<T, U>(a, c));
+    T patchC = d2->patch(a);
+
+    std::cout << d1->print();
+
+    std::cout << ((patchB == b) ? "true" : "false") << "\n";
+    std::cout << ((patchC == c) ? "true" : "false") << "\n";
+
+    for (auto v: patchB) {
+        std::cout << v << "\n";
+    }
+
+    std::cout << "\n\n\n";
+
+    for (auto v: b) {
+        std::cout << v << "\n";
+    }
+
+    std::cout << "\n\n\n";
+
     //std::cout << d1->print();
     //std::cout << d2->print();
     Merge<T>* m = new Merge<T>(*d1, *d2);
@@ -205,7 +247,7 @@ int main(int argv, char** args) {
 
     //threeSetsDemo();
 
-   //threeWayMerge<std::>();
+    //threeWayMerge<std::>();
 
     //std::cout << deltaAC->print() << "\n";
 
@@ -222,30 +264,30 @@ int main(int argv, char** args) {
     Contacts d;
 
     a.addContact()
-    .addName("Ivan")
-    ->addName("Petrov")
-    ->addPhone("+78882220920")
-    ->addPhone("+76662220920")
-    ->addPhone("+79992220920");
+            .addName("Ivan")
+            ->addName("Petrov")
+            ->addPhone("+78882220920")
+            ->addPhone("+76662220920")
+            ->addPhone("+79992220920");
 
     std::cout << a.print() << "\n";
 
     b.addContact()
-    .addName("Ivan")
-    ->addName("Sergeevich")
-    ->addName("Petrov")
-    ->addPhone("+78882220920")
-    ->addPhone("+79992220940");
+            .addName("Ivan")
+            ->addName("Sergeevich")
+            ->addName("Petrov")
+            ->addPhone("+78882220920")
+            ->addPhone("+79992220940");
 
     std::cout << b.print() << "\n";
 
     c.addContact()
-    .addName("Ivan")
-    ->addName("Petrov-Vodkin")
-    ->addPhone("+78882220920")
-    ->addPhone("+76662220920")
-    ->addPhone("+79992220920")
-    ->addPhone("+77772220920");
+            .addName("Ivan")
+            ->addName("Petrov-Vodkin")
+            ->addPhone("+78882220920")
+            ->addPhone("+76662220920")
+            ->addPhone("+79992220920")
+            ->addPhone("+77772220920");
 
     std::cout << c.print() << "\n";
 
@@ -266,19 +308,19 @@ int main(int argv, char** args) {
 
 
 
-	//demoSets();
-	//demoStrings();
-	
+    //demoSets();
+    //demoStrings();
 
-	//for (auto )
-	//assert(b == c);
 
-	//Delta<Contacts> ...;
+    //for (auto )
+    //assert(b == c);
 
-	//Delta<Deltable> ...;
+    //Delta<Contacts> ...;
 
-	// Delta<std::string>(v1, v2)
-	// Delta<std::string>
+    //Delta<Deltable> ...;
 
-	return 0;
+    // Delta<std::string>(v1, v2)
+    // Delta<std::string>
+
+    return 0;
 }

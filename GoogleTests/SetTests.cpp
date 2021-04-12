@@ -34,7 +34,7 @@ TEST(SetDelta, DeltaReversePatching) {
     T c = deltaAB->patch(a);
     ASSERT_EQ(b, c);
 
-    Delta<T>* deltaBA = deltaAB->inverse();
+    Delta<T>* deltaBA = deltaAB->invert();
     T d = deltaBA->patch(c);
     ASSERT_EQ(a, d);
 

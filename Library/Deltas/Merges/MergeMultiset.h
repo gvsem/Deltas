@@ -22,7 +22,7 @@ public:
     Merge(Delta<T>& a, Delta<T>& b) {
         this->operationsA = a.getOperations();
         this->operationsB = b.getOperations();
-        this->operationalDifference = std::map<U, std::pair<CollectionOperation*, CollectionOperation*>>();
+
     }
 
     Delta<T>* delta() override {
@@ -33,14 +33,14 @@ public:
 
         auto operationalDifference = std::map<U, std::pair<CollectionOperation*, CollectionOperation*>>();
         for (CollectionOperation* op : this->operationsA) {
-            this->operationalDifference[op->getValue()].first = op;
+            operationalDifference[op->getValue()].first = op;
         }
         for (CollectionOperation* op : this->operationsB) {
-            this->operationalDifference[op->getValue()].second = op;
+            operationalDifference[op->getValue()].second = op;
         }
         
         std::vector<CollectionOperation*> r = std::vector<CollectionOperation*>();
-        for (auto& p : this->operationalDifference) {
+        for (auto& p : operationalDifference) {
             long a = 0;
             long b = 0;
             if (p.second.first != nullptr) {

@@ -50,11 +50,11 @@ public:
 //		throw std::runtime_error("Not implemented method.");
 //		return this;
 //	}
-
-	virtual IDelta<T>* clone() {
-        throw std::runtime_error("Not implemented method.");
-        return this;
-	}
+//
+//	virtual IDelta<T>* clone() {
+//        throw std::runtime_error("Not implemented method.");
+//        return this;
+//	}
 
 //    virtual IMerge<T>* merge(IDelta<T>& other) {
 //        throw std::runtime_error("Not implemented method.");
