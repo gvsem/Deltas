@@ -14,6 +14,7 @@
 //
 //};
 
+#define DefaultDifferenceAlgorithm MyersDifferenceAlgorithm<T,U>
 
     template <typename U>
     class Delta<std::vector<U>> : public IDelta<std::vector<U>> {
@@ -26,7 +27,7 @@
         Delta() {}
 
 
-        Delta(T& initialState, T& finalState) : Delta<std::vector<U>>(initialState, finalState, new MyersDifferenceAlgorithm<T, U>(initialState, finalState)) {
+        Delta(T& initialState, T& finalState) : Delta<std::vector<U>>(initialState, finalState, new DefaultDifferenceAlgorithm(initialState, finalState)) {
 
         }
 
@@ -51,6 +52,13 @@
                     this->ops.push_back(v);
                 }
                 if (v->type() == SequenceOperation<U>::OperationType::Delta) {
+//                    Merge<U> m = new Merge<U>();
+//                    if (m.hasSpecialization()) {
+//                        this->ops.push_back(v);
+//                    } else {
+//
+//                    }
+
                     for (auto u : buffD) {
                         this->ops.push_back(u);
                     }
@@ -189,7 +197,7 @@
 
     public:
 
-        Delta<T> * inverse()  {
+        Delta<T> * invert()  {
             std::vector<SequenceOperation<U>*> reverseOps;
 
             for (SequenceOperation<U>* op : ops) {

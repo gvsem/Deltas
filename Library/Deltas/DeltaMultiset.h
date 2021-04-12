@@ -109,7 +109,7 @@ private:
 
 public:
 
-    Delta<T>* inverse() {
+    Delta<T>* invert() {
 
         std::vector<CollectionOperation*> reverseOps;
 

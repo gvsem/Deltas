@@ -46,7 +46,7 @@ public:
 //		return T();
 //	}
 
-//	virtual IDelta<T>* inverse() {
+//	virtual IDelta<T>* invert() {
 //		throw std::runtime_error("Not implemented method.");
 //		return this;
 //	}

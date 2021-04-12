@@ -28,7 +28,7 @@ public:
         return this->_finalState;
     }
 
-    Delta<T>* inverse() {
+    Delta<T>* invert() {
         return new Delta<T>(this->_finalState, this->_initialState);
     }
 
@@ -43,6 +43,10 @@ public:
     bool hasSpecialization() override {
         return false;
     }
+
+    // =====================
+
+
 
 private:
 

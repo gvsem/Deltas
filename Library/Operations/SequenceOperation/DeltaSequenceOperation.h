@@ -40,7 +40,7 @@ public:
     }
 
     DeltaSequenceOperation<T>* getReverseOperation() {
-        return new DeltaSequenceOperation<T>(this->delta->inverse());
+        return new DeltaSequenceOperation<T>(this->delta->invert());
     }
 
     ~DeltaSequenceOperation() {

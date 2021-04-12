@@ -23,8 +23,8 @@ void demoDiff(T& a, T& b) {
 	}
 	std::cout << "\n";
 
-	std::cout << d->inverse()->print();
-	T g = d->inverse()->patch(c);
+	std::cout << d->invert()->print();
+	T g = d->invert()->patch(c);
 
 	for (auto a : g) {
 		std::cout << a << " ";
@@ -57,8 +57,8 @@ void demoStrings() {
 	}
 	std::cout << "\n";
 
-	std::cout << d->inverse()->print();
-	T g = d->inverse()->patch(c);
+	std::cout << d->invert()->print();
+	T g = d->invert()->patch(c);
 
 	for (auto a : g) {
 		std::cout << a << " ";
@@ -85,8 +85,8 @@ void demoVectors() {
 	}
 	std::cout << "\n";
 
-	std::cout << d->inverse()->print();
-	std::vector<int> g = d->inverse()->patch(c);
+	std::cout << d->invert()->print();
+	std::vector<int> g = d->invert()->patch(c);
 
 	for (auto a : g) {
 		std::cout << a << " ";
@@ -158,7 +158,9 @@ void threeWayMergeMap() {
 }
 
 void threeWayMergeText() {
+
     typedef std::vector<std::vector<char>> T;
+    typedef std::vector<char> U;
 
     T a = {
             s("Good morning!"),
@@ -181,7 +183,16 @@ void threeWayMergeText() {
     std::cout << "\n";
     std::cout << "\n";
 
-    T d = threeWayMerge<T>(a, b, c);
+    Delta<T>* d1 = new Delta<T>(a, b, new WFDifferenceAlgorithm<T, U>(a, b));
+    Delta<T>* d2 = new Delta<T>(a, c, new WFDifferenceAlgorithm<T, U>(a, c));
+    //std::cout << d1->print();
+    //std::cout << d2->print();
+    Merge<T>* m = new Merge<T>(*d1, *d2);
+    Delta<T>* d3 = m->delta();
+    //std::cout << m->print();
+    T d = d3->patch(a);
+
+    //T d = threeWayMerge<T>(a, b, c);
 
     std::cout << "\n";
     std::cout << "\n";
@@ -200,9 +211,8 @@ int main(int argv, char** args) {
 
     //demoVectors();
 
-
     threeWayMergeText();
-    return 0;
+
 
     typedef Contact T;
 
