@@ -35,6 +35,8 @@ Thus, we have proposed an approach to developing optimistic replication applicat
 
 ### Slides
 
+The following slides were automatically translated by Google Translate.
+
 ![1](slides/KMU2021Semenov2%20(1)_page-0001.jpg)
 ![2](slides/KMU2021Semenov2%20(1)_page-0002.jpg)
 ![3](slides/KMU2021Semenov2%20(1)_page-0003.jpg)
