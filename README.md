@@ -32,23 +32,3 @@ The provided ways of parameterization of templates ensure their correct use for 
 ### Conclusion
 
 Thus, we have proposed an approach to developing optimistic replication applications in C++ based on a template library for collection comparison and merging operations. The approach has been successfully tested in the creation of an address book software application with the function of synchronizing book replicas and seems promising for the development of other classes of applications. The directions of further research will be the development of an approach for arbitrary object-oriented data models, as well as the analysis of ways to automate the development of optimistic replication software applications.
-
-### Slides
-
-The following slides were automatically translated by Google Translate.
-
-![1](slides/KMU2021Semenov2%20(1)_page-0001.jpg)
-![2](slides/KMU2021Semenov2%20(1)_page-0002.jpg)
-![3](slides/KMU2021Semenov2%20(1)_page-0003.jpg)
-![4](slides/KMU2021Semenov2%20(1)_page-0004.jpg)
-![5](slides/KMU2021Semenov2%20(1)_page-0005.jpg)
-![6](slides/KMU2021Semenov2%20(1)_page-0006.jpg)
-![7](slides/KMU2021Semenov2%20(1)_page-0007.jpg)
-![8](slides/KMU2021Semenov2%20(1)_page-0008.jpg)
-![9](slides/KMU2021Semenov2%20(1)_page-0009.jpg)
-![10](slides/KMU2021Semenov2%20(1)_page-0010.jpg)
-![11](slides/KMU2021Semenov2%20(1)_page-0011.jpg)
-![12](slides/KMU2021Semenov2%20(1)_page-0012.jpg)
-![13](slides/KMU2021Semenov2%20(1)_page-0013.jpg)
-![14](slides/KMU2021Semenov2%20(1)_page-0014.jpg)
-![15](slides/KMU2021Semenov2%20(1)_page-0015.jpg)
